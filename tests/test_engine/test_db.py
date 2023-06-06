@@ -43,5 +43,48 @@ class TestStorage(unittest.TestCase):
         user = self.storage.get_user(email)
         self.assertIsNone(user)
 
+    def test_add_property(self):
+        """
+        Test adding a new property to the database with valid details
+        """
+        property_details = {
+            'name': 'Sample Property',
+            'location': 'Sample Location',
+            'price': 100000
+        }
+        result = self.storage.add_property(property_details)
+        self.assertIsInstance(result, str)
+        self.assertNotEqual(result, '')
+
+    def test_add_property_invalid_details(self):
+        """
+        Test adding a new property to the database with invalid details
+        """
+        property_details = "invalid"
+        result = self.storage.add_property(property_details)
+        self.assertIsNone(result)
+
+    def test_get_property(self):
+        """
+        Test retrieving a property from the database based on property ID
+        """
+        property_details = {
+            'name': 'Sample Property',
+            'location': 'Sample Location',
+            'price': 100000
+        }
+        property_id = self.storage.add_property(property_details)
+        property = self.storage.get_property(property_id)
+        self.assertIsInstance(property, dict)
+        self.assertEqual(str(property['_id']), property_id)
+
+    def test_get_property_invalid_id(self):
+        """
+        Test retrieving a property from the database with an invalid property ID
+        """
+        property_id = None
+        property = self.storage.get_property(property_id)
+        self.assertIsNone(property)
+
 if __name__ == '__main__':
     unittest.main()
