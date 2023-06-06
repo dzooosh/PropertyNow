@@ -77,6 +77,22 @@ class Storage:
         user = collection.find_one({ 'email': email })
         return user
 
+    def delete_user(self, user_id: str) -> bool:
+        """
+        deletes a user
+
+        args:
+            user_id (str): user id
+        
+        return:
+            (bool): return result of operation
+        """
+        if not user_id or type(user_id) is not str:
+            return False
+        collection = self._Storage__getCollection('users')
+        result = collection.delete_one({ '_id': ObjectId(user_id) })
+        return result.acknowledged
+
     def add_property(self, property_details: Dict[str, Any]) -> str:
         """
         adds a new property in the database

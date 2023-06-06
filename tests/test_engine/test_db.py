@@ -1,11 +1,22 @@
 import unittest
 from pymongo.collection import Collection
-from engine.db import Storage
+from engine import storage
 
 class TestStorage(unittest.TestCase):
 
     def setUp(self):
-        self.storage = Storage()
+        self.storage = storage
+    
+    def teardown(self):
+        user_emails = [
+            'test@example.com',
+            'test@example2.com',
+            'test@example3.com'
+        ]
+
+        for email in user_emails:
+            user_id = str(self.storage.get_user(email)['_id'])
+            self.storage.delete_user(user_id)
 
     def test_add_user(self):
         """
@@ -30,10 +41,15 @@ class TestStorage(unittest.TestCase):
         """
         Test retrieving a user from the database based on email
         """
-        email = 'test@example.com'
-        user = self.storage.get_user(email)
+        user_credentials = {
+            'email': 'test@example2.com',
+            'password': 'password123'
+        }
+        result = self.storage.add_user(user_credentials)
+        self.assertTrue(result)
+        user = self.storage.get_user(user_credentials['email'])
         self.assertIsInstance(user, dict)
-        self.assertEqual(user['email'], email)
+        self.assertEqual(user['email'], user_credentials['email'])
 
     def test_get_user_invalid_email(self):
         """
@@ -85,6 +101,32 @@ class TestStorage(unittest.TestCase):
         property_id = None
         property = self.storage.get_property(property_id)
         self.assertIsNone(property)
+
+    def test_delete_user(self):
+        """
+        Test the delete_user method.
+        """
+        user_credentials = {
+            'email': 'test@example3.com',
+            'password': 'password123'
+        }
+        result = self.storage.add_user(user_credentials)
+        self.assertTrue(result)
+        user_id = str(self.storage.get_user('test@example3.com')['_id'])
+        result = self.storage.delete_user(user_id)
+
+        self.assertTrue(result)
+        user = self.storage.get_user('test@example3.com')
+        self.assertIsNone(user)
+
+    def test_delete_user_invalid_id(self):
+        """
+        Test the behavior of delete_user method when an invalid user ID is provided.
+        """
+        user_id = None
+        result = self.storage.delete_user(user_id)
+
+        self.assertFalse(result)
 
 if __name__ == '__main__':
     unittest.main()
