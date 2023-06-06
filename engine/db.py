@@ -50,7 +50,7 @@ class Storage:
             user_credentials (Dict): A dictionary with user credentialise
         
         return:
-            (bool): True if succeful or False if failed
+            (bool): True if successful or False if failed
         """
         if user_credentials is None or not isinstance(user_credentials, dict):
             return False

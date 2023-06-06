@@ -11,6 +11,8 @@ DB_HOST = environ.get('DB_HOST', 'localhost')
 DB_PORT = environ.get('DB_PORT', '27017')
 DB_DATABASE = environ.get('DB_DATABASE', 'propertyNow')
 client = MongoClient(f'mongodb://{DB_HOST}:{DB_PORT}')
+
+# Access the database
 dbClient = client[DB_DATABASE]
 
 # setup `users` collection and indexes
