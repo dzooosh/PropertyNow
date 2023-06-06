@@ -49,7 +49,7 @@ class Storage:
             userCredentials (Dict): A dictionary with user credentialise
         
         return:
-            (bool): True if succeful or False if failed
+            (bool): True if successful or False if failed
         """
         if not userCredentials or not isinstance(userCredentials, dict):
             return False
