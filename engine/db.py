@@ -52,7 +52,7 @@ class Storage:
         return:
             (bool): True if succeful or False if failed
         """
-        if not user_credentials or not isinstance(user_credentials, dict):
+        if user_credentials is None or not isinstance(user_credentials, dict):
             return False
         collection = self._Storage__getCollection('users')
         try:
