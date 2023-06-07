@@ -2,13 +2,12 @@
 from flask import Flask, render_template, redirect, url_for, request
 from flask_login import LoginManager, login_required, login_user, logout_user
 from .auth import Auth
-from engine.db import Storage
+from engine import storage
 from forms import RegistrationForm
 
 app = Flask(__name__)
 # app.config['SECRET_KEY'] = secrets.token_hex(32)
 
-storage = Storage()
 auth = Auth()
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -24,13 +23,13 @@ def load_user(email):
     Return:
         User object
     """
-    user = Storage.get_user(email=email)
+    user = storage.get_user(email=email)
     return user
 
 
-# @app.route('/')
-# def home():
-#     return 'Home Page'
+@app.route('/')
+def home():
+    return 'Home Page'
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -55,11 +54,11 @@ def signup():
                     'email': email,
                     'password': hashed_password,
                 })
-                return render_template(url_for(signup), form=form)
-            else:
-                return render_template(url_for(signup), form=form)
+                return render_template(url_for(home)) # with message: successful
+        # if the form is not validated, reload the signup form 
         return render_template(url_for(signup), form=form)
-    return render_template(url_for(home), form=form)
+    # if request.method is GET
+    return render_template(url_for(signup), form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -68,7 +67,7 @@ def login():
         email = request.form['email']
         password = request.form['password']
         if auth.check_email(email) and auth.check_password(email, password):
-            user = Storage.get_user(email)
+            user = storage.get_user(email)
             login_user(user)
             return redirect(url_for('home'))
         else:

@@ -1,6 +1,6 @@
 """ User Authentication """
 from .app import app
-from engine.db import Storage
+from engine import storage
 from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt(app)
@@ -24,7 +24,7 @@ class Auth:
         Return:
             True if valid, False if not
         """
-        user = Storage.get_user(email=email)
+        user = storage.get_user(email=email)
         if email == user['email']:
             return True
         else:
@@ -37,7 +37,7 @@ class Auth:
         Returns:
             True if valid, False if not
         """
-        user = Storage.get_user(email=email)
+        user = storage.get_user(email=email)
         db_password = user['password']
         if bcrypt.check_password_hash(db_password, password):
             return True
