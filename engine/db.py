@@ -5,7 +5,7 @@
 
 from pymongo import MongoClient, collection
 from bson import ObjectId
-from typing import Dict, Any
+from typing import Dict, Any, List
 from os import environ
 
 
@@ -146,4 +146,53 @@ class Storage:
         collection = self._Storage__getCollection('property')
         property = collection.find_one({ '_id': ObjectId(property_id) })
         return property
+    
+    def delete_property(self, property_id: str) -> bool:
+        """
+        deletes property
+
+        args:
+            property_id (str): id for the property
+
+        return:
+            (bool): result of the operation
+        """
+        if not property_id or type(property_id) is not str:
+            return
+        collection = self._Storage__getCollection('property')
+        result = collection.delete_one({'_id': ObjectId(property_id)})
+        return result.acknowledged
+
+    def get_properties_for_seller(self, seller_id: str) -> List[Dict[str, Any]]:
+        """
+        returns all of the properties linked to a seller
+
+        args:
+            seller_id (str): user id for all of the properties to be deleted
+        
+        return:
+            (list): list of all properties linked to a user
+        """
+        if not seller_id or type(seller_id) is not str:
+            return
+        collection = self._Storage__getCollection('property')
+        properties = collection.find({'seller_id': ObjectId(seller_id)})
+        return list(properties)
+
+    def delete_properties_for_seller(self, seller_id: str) -> bool:
+        """
+        deletes all properties related to a specific seller
+
+        args:
+            seller_id (str): user id for all of the properties to be deleted
+        
+        return:
+            (bool): result of the operation
+        """
+        if not seller_id or type(seller_id) is not str:
+            return
+        collection = self._Storage__getCollection('property')
+        result = collection.delete_many({'seller_id': ObjectId(seller_id)})
+        return result.acknowledged
+
 

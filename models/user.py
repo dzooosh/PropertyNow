@@ -17,7 +17,7 @@ class User:
         """
         Initialize the User class
         """
-        self.storage = storage
+        self.__storage = storage
 
     def add_user(self, user_details: Dict[str, Any]) -> bool:
         """
@@ -29,7 +29,7 @@ class User:
         Returns:
             bool: True if the user is successfully added, False otherwise.
         """
-        return self.storage.add_user(user_details)
+        return self.__storage.add_user(user_details)
 
     def get_user(self, email: str) -> Optional[Dict[str, Any]]:
         """
@@ -41,7 +41,7 @@ class User:
         Returns:
             Optional[Dict[str, Any]]: A dictionary containing the user details if found, None otherwise.
         """
-        return self.storage.get_user(email)
+        return self.__storage.get_user(email)
 
     def delete_user(self, user_id: str) -> bool:
         """
@@ -53,7 +53,7 @@ class User:
         Returns:
             (bool): result of the delete operation
         """
-        return self.storage.delete_user(user_id)
+        return self.__storage.delete_user(user_id)
 
       
     def update_user(self, user_id: str, user_details: Dict[str, Any]) -> bool:
@@ -67,4 +67,4 @@ class User:
         Return:
             (bool): result of the operation
         """
-        return self.storage.update_user(user_id, user_details)
+        return self.__storage.update_user(user_id, user_details)

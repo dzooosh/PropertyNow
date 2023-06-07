@@ -32,6 +32,7 @@ except CollectionInvalid:
     print('Collection `property` already exists')
     propertyCollection = dbClient['property']
 
+propertyCollection.create_index('seller_id')
 propertyCollection.create_index('price')
 propertyCollection.create_index('location.city')
 

@@ -6,6 +6,13 @@ class TestStorage(unittest.TestCase):
 
     def setUp(self):
         self.storage = storage
+        user_credentials = {
+            'email': 'test@example6.com',
+            'password': 'password123'
+        }
+        result = self.storage.add_user(user_credentials)
+        self.user = self.storage.get_user(user_credentials['email'])
+
     
     def teardown(self):
         user_emails = [
@@ -13,7 +20,8 @@ class TestStorage(unittest.TestCase):
             'test@example2.com',
             'test@example3.com',
             'test@example4.com',
-            'test@example5.com'
+            'test@example5.com',
+            'test@example6.com'
         ]
 
         for email in user_emails:
@@ -183,6 +191,37 @@ class TestStorage(unittest.TestCase):
         result = self.storage.update_user(user_id, user_details)
         self.assertFalse(result)
 
+    def test_delete_property(self):
+        property_id = self.storage.add_property({"title": "Test Property", "seller_id": self.user['_id']})
+        result = self.storage.delete_property(property_id)
+        self.assertTrue(result)
+        deleted_property = self.storage.get_property(property_id)
+        self.assertIsNone(deleted_property)
+
+    def test_get_properties_for_seller(self):
+        seller_id = self.user['_id']
+        self.storage.add_property({"title": "Property 1", "seller_id": seller_id})
+        self.storage.add_property({"title": "Property 2", "seller_id": seller_id})
+        self.storage.add_property({"title": "Property 3", "seller_id": seller_id})
+
+        properties = self.storage.get_properties_for_seller(str(seller_id))
+        self.assertIsInstance(properties, list)
+        self.assertEqual(len(properties), 3)
+
+        for property in properties:
+            self.assertEqual(property["seller_id"], seller_id)
+
+    def test_delete_properties_for_seller(self):
+        seller_id = self.user['_id']
+        self.storage.add_property({"title": "Property 1", "seller_id": seller_id})
+        self.storage.add_property({"title": "Property 2", "seller_id": seller_id})
+        self.storage.add_property({"title": "Property 3", "seller_id": seller_id})
+
+        result = self.storage.delete_properties_for_seller(str(seller_id))
+        self.assertTrue(result)
+
+        deleted_properties = self.storage.get_properties_for_seller(str(seller_id))
+        self.assertEqual(len(deleted_properties), 0)
 
 if __name__ == '__main__':
     unittest.main()
