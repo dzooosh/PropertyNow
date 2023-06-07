@@ -41,4 +41,30 @@ class User:
         Returns:
             Optional[Dict[str, Any]]: A dictionary containing the user details if found, None otherwise.
         """
-        return storage.get_user(email)
+        return self.storage.get_user(email)
+
+    def delete_user(self, user_id: str) -> bool:
+        """
+        deletes a user
+
+        Args:
+            user_id (str): user id
+
+        Returns:
+            (bool): result of the delete operation
+        """
+        return self.storage.delete_user(user_id)
+
+      
+    def update_user(self, user_id: str, user_details: Dict[str, Any]) -> bool:
+        """
+        update user details
+
+        Args:
+            user_id (str): user id
+            user_details (dict): user fields to update
+
+        Return:
+            (bool): result of the operation
+        """
+        return self.storage.update_user(user_id, user_details)

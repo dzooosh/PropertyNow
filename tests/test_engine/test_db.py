@@ -11,7 +11,9 @@ class TestStorage(unittest.TestCase):
         user_emails = [
             'test@example.com',
             'test@example2.com',
-            'test@example3.com'
+            'test@example3.com',
+            'test@example4.com',
+            'test@example5.com'
         ]
 
         for email in user_emails:
@@ -127,6 +129,60 @@ class TestStorage(unittest.TestCase):
         result = self.storage.delete_user(user_id)
 
         self.assertFalse(result)
+
+    def test_update_user(self):
+        """
+        Test updating user details with valid inputs.
+        """
+        user_credentials = {
+            'email': 'test@example4.com',
+            'password': 'password123'
+        }
+        result = self.storage.add_user(user_credentials)
+        self.assertTrue(result)
+        user_id = str(self.storage.get_user('test@example4.com')['_id'])
+
+        user_details = {
+            "name": "John Doe",
+            "email": "johndoe@example.com",
+            "age": 30
+        }
+        result = self.storage.update_user(user_id, user_details)
+        self.assertTrue(result)
+
+    def test_update_user_invalid_id(self):
+        """
+        Test updating user details with an invalid user ID.
+        """
+        user_id = None
+        user_details = {
+            "name": "John Doe",
+            "email": "johndoe@example.com",
+            "age": 30
+        }
+        result = self.storage.update_user(user_id, user_details)
+        self.assertFalse(result)
+
+    def test_update_user_invalid_details(self):
+        """
+        Test updating user details with invalid user details.
+        """
+        user_credentials = {
+            'email': 'test@example5.com',
+            'password': 'password123'
+        }
+        result = self.storage.add_user(user_credentials)
+        self.assertTrue(result)
+        user_id = str(self.storage.get_user('test@example5.com')['_id'])
+
+        user_details = None
+        result = self.storage.update_user(user_id, user_details)
+        self.assertFalse(result)
+
+        user_details = "invalid"
+        result = self.storage.update_user(user_id, user_details)
+        self.assertFalse(result)
+
 
 if __name__ == '__main__':
     unittest.main()

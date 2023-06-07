@@ -92,6 +92,25 @@ class Storage:
         collection = self._Storage__getCollection('users')
         result = collection.delete_one({ '_id': ObjectId(user_id) })
         return result.acknowledged
+    
+    def update_user(self, user_id: str, user_details: Dict[str, Any]) -> bool:
+        """
+        update user details
+
+        Args:
+            user_id (str): user id
+            user_details (dict): user fields to update
+
+        Return:
+            (bool): result of the operation
+        """
+        if not user_id or type(user_id) is not str:
+            return False
+        if user_details is None or not isinstance(user_details, dict):
+            return False
+        collection = self._Storage__getCollection('users')
+        result = collection.update_one({'_id': ObjectId(user_id)}, {'$set': user_details})
+        return result.acknowledged
 
     def add_property(self, property_details: Dict[str, Any]) -> str:
         """
