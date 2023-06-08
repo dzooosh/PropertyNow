@@ -7,21 +7,23 @@ from engine import storage
 from models.user import User
 
 class UserTests(unittest.TestCase):
-    def setUp(self):
-        self.storage = storage
-        self.user = User()
 
-    def teardown(self):
+    @classmethod
+    def setUp(cls):
+        cls.storage = storage
+        cls.user = User()
+
+    @classmethod
+    def tearDownClass(cls):
         user_emails = [
             'test@example.com',
             'test@example2.com',
-            'test@example3.com',
             'test@example4.com'
         ]
 
         for email in user_emails:
-            user_id = str(self.storage.get_user(email)['_id'])
-            self.storage.delete_user(user_id)
+            user_id = str(cls.storage.get_user(email)['_id'])
+            cls.storage.delete_user(user_id)
 
     def test_add_user(self):
         """

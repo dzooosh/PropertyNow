@@ -6,75 +6,120 @@ from typing import Dict, Any, List
 
 
 class TestProperty(unittest.TestCase):
-    def setUp(self):
-        self.__storage = storage
-        self.property = Property()
+    @classmethod
+    def setUpClass(cls):
+        cls.__storage = storage
+        cls.property = Property()
         user_credentials = {
+            'first name': 'John',
+            'last name': 'Doe',
             'email': 'test@example.com',
-            'password': 'password123'
+            'password': 'password123',
+            'account type': 'buyer'
         }
-        result = self.__storage.add_user(user_credentials)
-        self.user = self.__storage.get_user(user_credentials['email'])
+        result = cls.__storage.add_user(user_credentials)
+        cls.user = cls.__storage.get_user(user_credentials['email'])
 
-    
-    def teardown(self):
+    @classmethod
+    def tearDownClass(cls):
         user_emails = [
             'test@example.com',
         ]
-        self.__storage.delete_properties_for_seller(str(self.user['_id']))
+        cls.__storage.delete_properties_for_seller(str(cls.user['_id']))
         for email in user_emails:
-            user_id = str(self.storage.get_user(email)['_id'])
-            self.storage.delete_user(user_id)
+            user_id = str(cls.__storage.get_user(email)['_id'])
+            cls.__storage.delete_user(user_id)
 
     def test_add_property(self):
         property_details = {
-            "title": "House for Sale",
-            "price": 200000,
-            "location": "New York",
-            "seller_id": self.user['_id']
+            'title': 'Spacious Apartment',
+            'description': 'A beautiful apartment with modern amenities.',
+            'price': 200000,
+            'seller id': str(self.user['_id']),
+            'location': {
+                'city': 'New York',
+                'neighborhood': 'Manhattan'
+            }
         }
         result = self.property.add_property(property_details)
-        self.assertIsInstance(result, str)
-        self.assertNotEqual(result, "")
+        self.assertIsInstance(result, dict)
+        self.assertTrue('property id' in result.keys())
+
+    def test_add_property_missing_fields(self):
+        property_details = {
+            'title': 'Spacious Apartment',
+            'description': 'A beautiful apartment with modern amenities.',
+            'price': 200000
+        }
+        result = self.property.add_property(property_details)
+        self.assertEqual(result, {'error': 'Missing seller id, location'})
+
+    def test_add_property_invalid_seller(self):
+        property_details = {
+            'title': 'Spacious Apartment',
+            'description': 'A beautiful apartment with modern amenities.',
+            'price': 200000,
+            'seller id': '123456789012',
+            'location': {
+                'city': 'New York',
+                'neighborhood': 'Manhattan'
+            }
+        }
+        result = self.property.add_property(property_details)
+        self.assertEqual(result, {'error': "seller doesn't exist"})
 
     def test_get_property(self):
         property_details = {
-            "title": "House for Sale",
-            "price": 200000,
-            "location": "New York",
-            "seller_id": self.user['_id']
+            'title': 'Spacious Apartment',
+            'description': 'A beautiful apartment with modern amenities.',
+            'price': 200000,
+            'seller id': str(self.user['_id']),
+            'location': {
+                'city': 'New York',
+                'neighborhood': 'Manhattan'
+            }
         }
-        property_id = self.property.add_property(property_details)
-        result = self.property.get_property(property_id)
+        result = self.property.add_property(property_details)
         self.assertIsInstance(result, dict)
-        self.assertEqual(result['_id'], ObjectId(property_id))
+        self.assertTrue('property id' in result.keys())
+        property_id = result['property id']
+        property = self.property.get_property(property_id)
+        self.assertEqual(property['_id'], ObjectId(property_id))
 
     def test_delete_property(self):
         property_details = {
-            "title": "House for Sale",
-            "price": 200000,
-            "location": "New York",
-            "seller_id": self.user['_id']
+            'title': 'Spacious Apartment',
+            'description': 'A beautiful apartment with modern amenities.',
+            'price': 200000,
+            'seller id': str(self.user['_id']),
+            'location': {
+                'city': 'New York',
+                'neighborhood': 'Manhattan'
+            }
         }
-        property_id = self.property.add_property(property_details)
+        property_id = self.property.add_property(property_details).get('property id')
         result = self.property.delete_property(property_id)
         self.assertIsInstance(result, bool)
         self.assertTrue(result)
 
     def test_get_properties_for_seller(self):
-        seller_id = self.user['_id']
+        seller_id = str(self.user['_id'])
         property_details = {
-            "title": "House for Sale",
-            "price": 200000,
-            "location": "New York",
-            "seller_id": self.user['_id']
+            'title': 'Spacious Apartment',
+            'description': 'A beautiful apartment with modern amenities.',
+            'price': 200000,
+            'seller id': seller_id,
+            'location': {
+                'city': 'New York',
+                'neighborhood': 'Manhattan'
+            }
         }
         self.property.add_property(property_details)
-        result = self.property.get_properties_for_seller(str(seller_id))
+        result = self.property.get_properties_for_seller(seller_id)
         self.assertIsInstance(result, list)
-        self.assertGreater(len(result), 2)
+        self.assertEqual(len(result), 2)
         for property in result:
-            self.assertEqual(property["seller_id"], seller_id)
+            self.assertEqual(property["seller id"], seller_id)
 
 
 if __name__ == "__main__":

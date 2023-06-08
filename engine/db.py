@@ -79,7 +79,10 @@ class Storage:
         elif user_id:
             if type(user_id) is not str:
                 return
-            user = collection.find_one({ '_id': ObjectId(user_id) })
+            try:
+                user = collection.find_one({ '_id': ObjectId(user_id) })
+            except Exception:
+                return
         else:
             return
         return user
@@ -151,7 +154,11 @@ class Storage:
         if not property_id or type(property_id) is not str:
             return
         collection = self._Storage__getCollection('property')
-        property = collection.find_one({ '_id': ObjectId(property_id) })
+        try:
+            property_id = ObjectId(property_id)
+        except Exception:
+            return
+        property = collection.find_one({ '_id': property_id })
         return property
     
     def delete_property(self, property_id: str) -> bool:
@@ -181,9 +188,9 @@ class Storage:
             (list): list of all properties linked to a user
         """
         if not seller_id or type(seller_id) is not str:
-            return
+            return []
         collection = self._Storage__getCollection('property')
-        properties = collection.find({'seller_id': ObjectId(seller_id)})
+        properties = collection.find({'seller id': seller_id})
         return list(properties)
 
     def delete_properties_for_seller(self, seller_id: str) -> bool:
@@ -197,9 +204,9 @@ class Storage:
             (bool): result of the operation
         """
         if not seller_id or type(seller_id) is not str:
-            return
+            return False
         collection = self._Storage__getCollection('property')
-        result = collection.delete_many({'seller_id': ObjectId(seller_id)})
+        result = collection.delete_many({'seller id': seller_id})
         return result.acknowledged
 
 

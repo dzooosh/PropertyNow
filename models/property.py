@@ -18,7 +18,7 @@ class Property:
         """
         self.__storage = storage
 
-    def add_property(self, property_details: Dict[str, Any]) -> str:
+    def add_property(self, property_details: Dict[str, Any]) -> Dict[str, str]:
         """
         adds a new property
 
@@ -28,7 +28,37 @@ class Property:
         return:
             (str): 
         """
-        return self.__storage.add_property(property_details)
+        if property_details is None or not isinstance(property_details, dict):
+            return {'error': 'Invalid user credentials'}
+        fields = property_details.keys()
+        required_fields = [
+           'title',
+           'description',
+           'price',
+           'seller id',
+           'location'
+        ]
+        missing_fields = [field for field in required_fields if field not in fields]
+        if missing_fields:
+            return {'error': f'Missing {", ".join(missing_fields)}'}
+        if type(property_details['location']) is not dict:
+            return {'error': 'location field is not a dictionary'}
+        required_location_fields = [
+           'city',
+           'neighborhood'
+        ]
+        fields = property_details['location'].keys()
+        missing_fields = [field for field in required_location_fields if field not in fields]
+        if missing_fields:
+            return {'error': f'Missing location fields: {", ".join(missing_fields)}'}
+        seller = self.__storage.get_user(None, property_details['seller id'])
+        if not seller:
+            return {'error': "seller doesn't exist"}
+        property_id = self.__storage.add_property(property_details)
+        if property_id:
+            return {'property id': property_id}
+        else:
+            return {'error': 'failed to add property'}
 
     def get_property(self, property_id: str) -> Dict[str, Any]:
         """
