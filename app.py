@@ -1,8 +1,9 @@
 # import secrets
 from flask import Flask, render_template, redirect, url_for, request
-from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from .auth import Auth
-from engine import storage
+from models.user import User
+from models.property import Property
 from forms import RegistrationForm
 
 app = Flask(__name__)
@@ -23,7 +24,8 @@ def load_user(email):
     Return:
         User object
     """
-    user = storage.get_user(email=email)
+    user = User()
+    user = user.get_user(email=email)
     return user
 
 
@@ -63,16 +65,24 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Redirect if user is already authenticated
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        if auth.check_email(email) and auth.check_password(email, password):
-            user = storage.get_user(email)
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        # Authenticate the user by checking the credentials against the storage
+        if auth.validate_login(email, password):
+            user = User()
+            user = user.get_user(email)
             login_user(user)
             return redirect(url_for('home'))
         else:
             return render_template('login.html',
                                    error='Invalid username or password')
+    # if request method is GET
     return render_template('login.html')
 
 
@@ -82,6 +92,19 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
+@app.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+    form = ChangePasswordForm()
+    if request.method == 'POST':
+        old_password = form.old_password.data
+        new_password  = form.new_password.data
+    # Handle password change logic
+    pass
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    # Handle password reset logic
+    pass
 
 if __name__ == '__main__':
     app.run(debug=True)

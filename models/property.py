@@ -14,7 +14,7 @@ class Property:
     """
     def __init__(self):
         """
-        Initialize the User class
+        Initialize the Property class
         """
         self.__storage = storage
 

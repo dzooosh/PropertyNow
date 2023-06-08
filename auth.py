@@ -1,14 +1,11 @@
 """ User Authentication """
 from .app import app
-from engine import storage
+from models.user import User
 from flask_bcrypt import Bcrypt
-
+from uuid import uuid4
 bcrypt = Bcrypt(app)
 
-
-class Auth:
-    """ Authentication class"""
-    def encode_password(self, password: str):
+def _encode_password(password: str):
         """ encodes any password which needs to be stored in the database
         Arg:
             password: the given password
@@ -17,29 +14,32 @@ class Auth:
         """
         return bcrypt.generate_password_hash(password).decode('utf-8')
 
-    def check_email(self, email: str) -> bool:
-        """ check if the given email exists in the database
-        Args:
-            email: the guest's/user's email
-        Return:
-            True if valid, False if not
-        """
-        user = storage.get_user(email=email)
-        if email == user['email']:
-            return True
-        else:
-            return False
+def _generate_uuid() -> str:
+    """ Generates a uuid
+    """
+    return str(uuid4())
 
-    def check_password(self, email: str, password: str) -> bool:
-        """ validates password
+class Auth:
+    """ Authentication class"""
+    def __init__(self):
+        """ initialising the Auth class"""
+        self.user = User()
+    
+    def validate_login(self, email: str, password: str) -> bool:
+        """ validates the login credentials
         Args:
-            password: guest's/user's passwords given
+            email (str): email to validate
+            password (str): password to validate
         Returns:
-            True if valid, False if not
+            True - if it matches with user details
+            False - if it does not match
         """
-        user = storage.get_user(email=email)
-        db_password = user['password']
-        if bcrypt.check_password_hash(db_password, password):
+        user = self.user.get_user(email=email)
+        if user is None:
+            return False
+        # use bcrypt to check the password against database
+        db_pswd = user.get('password')
+        if bcrypt.check_password_hash(db_pswd, password):
             return True
         else:
             return False
