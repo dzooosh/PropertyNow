@@ -61,7 +61,7 @@ class Storage:
         except Exception:
             return False
 
-    def get_user(self, email: str) -> Dict[str, Any]:
+    def get_user(self, email: str, user_id=None) -> Dict[str, Any]:
         """
         return user matching email
 
@@ -71,10 +71,17 @@ class Storage:
         return:
             user (dict): user details
         """
-        if not email or type(email) is not str:
-            return
         collection = self._Storage__getCollection('users')
-        user = collection.find_one({ 'email': email })
+        if email:
+            if type(email) is not str:
+                return
+            user = collection.find_one({ 'email': email })
+        elif user_id:
+            if type(user_id) is not str:
+                return
+            user = collection.find_one({ '_id': ObjectId(user_id) })
+        else:
+            return
         return user
 
     def delete_user(self, user_id: str) -> bool:
