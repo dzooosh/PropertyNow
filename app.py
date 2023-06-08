@@ -1,5 +1,5 @@
 # import secrets
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, flash, render_template, redirect, url_for, request
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from .auth import Auth
 from models.user import User
@@ -39,28 +39,36 @@ def signup():
     form = RegistrationForm()
     if request.method == 'POST':
         if form.validate_on_submit():  # if details entered are valid
-            # process your signup form data
-            firstName = form.firstName.data
-            lastName = form.lastName.data
-            email = form.email.data
-            password = form.password.data
+            # Retrieve form data
+            first_name = request.form.get('first_name')
+            last_name = request.form.get('last_name')
+            email = request.form.get('email')
+            password = request.form.get('password')
+            account_type = request.form.get('account_type')
 
-            # encrypt the password
-            hashed_password = auth.encode_password(password)
-            # check if the email provided exists
-            if auth.check_email(email):
-                # Save the data into the database
-                storage.add_user({
-                    'firstName': firstName,
-                    'lastName': lastName,
-                    'email': email,
-                    'password': hashed_password,
-                })
-                return render_template(url_for(home)) # with message: successful
-        # if the form is not validated, reload the signup form 
-        return render_template(url_for(signup), form=form)
+            # check if user already exists
+            user = User()
+            user_exist = user.get_user(email)
+            if user_exist:
+                flash("Email already exists!", "error")
+                return render_template(url_for('signup'), form=form)
+            
+            # Authenticate and register the user to the db
+            reged_user = auth.signup_user(email=email,
+                                          password=password,
+                                          first_name=first_name,
+                                          last_name=last_name,
+                                          account_type = account_type
+                                          )
+            if reged_user:
+                flash("User Successfully Created", "succes")
+                return render_template(url_for('home'), reged_user=reged_user)
+            else:
+                # if the form is not validated, reload the signup form 
+                flash("Failed to Create User", "error")
+                return render_template(url_for('signup'), form=form)
     # if request.method is GET
-    return render_template(url_for(signup), form=form)
+    return render_template(url_for('signup'), form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])

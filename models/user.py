@@ -33,8 +33,8 @@ class User:
             return {'error': 'Invalid user credentials'}
         fields = user_credentials.keys()
         required_fields = [
-            'first name',
-            'last name',
+            'first_name',
+            'last_name',
             'email',
             'password',
             'account type'

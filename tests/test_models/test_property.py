@@ -11,8 +11,8 @@ class TestProperty(unittest.TestCase):
         cls.__storage = storage
         cls.property = Property()
         user_credentials = {
-            'first name': 'John',
-            'last name': 'Doe',
+            'first_name': 'John',
+            'last_name': 'Doe',
             'email': 'test@example.com',
             'password': 'password123',
             'account type': 'buyer'

@@ -30,8 +30,8 @@ class UserTests(unittest.TestCase):
         Test the add_user method of the User class.
         """
         user_credentials = {
-            'first name': 'John',
-            'last name': 'Doe',
+            'first_name': 'John',
+            'last_name': 'Doe',
             'email': 'test@example.com',
             'password': 'password123',
             'account type': 'buyer'
@@ -41,8 +41,8 @@ class UserTests(unittest.TestCase):
 
     def test_add_user_missing_fields(self):
         user_credentials = {
-            'first name': 'John',
-            'last name': 'Doe',
+            'first_name': 'John',
+            'last_name': 'Doe',
             'email': 'test@example.com'
         }
         result = self.user.add_user(user_credentials)
@@ -61,8 +61,8 @@ class UserTests(unittest.TestCase):
         Test the get_user method of the User class.
         """
         user_credentials = {
-            'first name': 'John',
-            'last name': 'Doe',
+            'first_name': 'John',
+            'last_name': 'Doe',
             'email': 'test@example2.com',
             'password': 'password123',
             'account type': 'buyer'
@@ -79,8 +79,8 @@ class UserTests(unittest.TestCase):
         Test deleting a user with a valid user ID.
         """
         user_credentials = {
-            'first name': 'John',
-            'last name': 'Doe',
+            'first_name': 'John',
+            'last_name': 'Doe',
             'email': 'test@example3.com',
             'password': 'password123',
             'account type': 'buyer'
@@ -108,8 +108,8 @@ class UserTests(unittest.TestCase):
         Test updating a user with a valid user ID and user details.
         """
         user_credentials = {
-            'first name': 'unknown',
-            'last name': 'Doe',
+            'first_name': 'unknown',
+            'last_name': 'Doe',
             'email': 'test@example4.com',
             'password': 'password123',
             'account type': 'buyer'
