@@ -1,7 +1,7 @@
 # import secrets
 from flask import Flask, flash, render_template, redirect, url_for, request
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
-from .auth import Auth
+from auth import Auth
 from models.user import User
 from models.property import Property
 from forms import RegistrationForm
@@ -31,7 +31,7 @@ def load_user(email):
 
 @app.route('/')
 def home():
-    return 'Home Page'
+    return render_template('home.html')
 
 
 @app.route('/signup', methods=['GET', 'POST'])
