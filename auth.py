@@ -1,9 +1,13 @@
 """ User Authentication """
-from .app import app
+#from .app import app
+from flask import Flask, flash, render_template, redirect, url_for, request
 from models.user import User
 from flask_bcrypt import Bcrypt
 from uuid import uuid4
 from typing import Dict, Any
+
+
+app = Flask(__name__)
 
 
 bcrypt = Bcrypt(app)

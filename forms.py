@@ -31,4 +31,12 @@ class RegistrationForm(FlaskForm):
                             ],
                             )
 
-# class LoginForm(FlaskForm):
+class LoginForm(FlaskForm):
+    """Login form"""
+    email = EmailField('Email',
+                       validators=[DataRequired()]
+                       )
+
+    password = PasswordField('Password',
+                             validators=[DataRequired(), Length(min=6, max=25)]
+                             )
