@@ -1,17 +1,27 @@
-# import secrets
+import secrets
 from flask import Flask, flash, render_template, redirect, url_for, request
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
-from .auth import Auth
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer
+from .auth import Auth, bcrypt
 from models.user import User
 from models.property import Property
 from forms import RegistrationForm
 
 app = Flask(__name__)
-# app.config['SECRET_KEY'] = secrets.token_hex(32)
+app.config['SECRET_KEY'] = secrets.token_hex(32)
+app.config['MAIL_SERVER'] = 'your_mail_server'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your_username'
+app.config['MAIL_PASSWORD'] = 'your_password'
 
-auth = Auth()
+mail = Mail(app)  # handles mailing token to the user
+AUTH = Auth()
+user = User()
 login_manager = LoginManager()
 login_manager.init_app(app)
+serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 
 # flask-Login loads user object to know current_user
@@ -34,7 +44,7 @@ def home():
     return 'Home Page'
 
 
-@app.route('/signup', methods=['GET', 'POST'])
+@app.route('/signup', methods=['GET', 'POST'], strict_slashes=False)
 def signup():
     form = RegistrationForm()
     if request.method == 'POST':
@@ -54,7 +64,7 @@ def signup():
                 return render_template(url_for('signup'), form=form)
             
             # Authenticate and register the user to the db
-            reged_user = auth.signup_user(email=email,
+            reged_user = AUTH.signup_user(email=email,
                                           password=password,
                                           first_name=first_name,
                                           last_name=last_name,
@@ -71,7 +81,7 @@ def signup():
     return render_template(url_for('signup'), form=form)
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'], strict_slashes=False)
 def login():
     # Redirect if user is already authenticated
     if current_user.is_authenticated:
@@ -82,7 +92,7 @@ def login():
         password = request.form.get('password')
 
         # Authenticate the user by checking the credentials against the storage
-        if auth.validate_login(email, password):
+        if AUTH.validate_login(email, password):
             user = User()
             user = user.get_user(email)
             login_user(user)
@@ -100,19 +110,38 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
-@app.route('/change_password', methods=['GET', 'POST'])
+@app.route('/change-password', methods=['GET', 'POST'], strict_slashes=False)
+@login_required
 def change_password():
-    form = ChangePasswordForm()
     if request.method == 'POST':
-        old_password = form.old_password.data
-        new_password  = form.new_password.data
-    # Handle password change logic
-    pass
+        old_password = request.form.get('old_password')
+        new_password  = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
 
-@app.route('/reset_password', methods=['GET', 'POST'])
-def reset_password():
+        user = user.get_user(current_user.email)
+        if bcrypt.check_password_hash(user['password'], old_password):
+            if new_password == confirm_password:
+                user['password'] = new_password
+                flash("Password has been successfully changed!", "success")
+                return redirect(url_for('home'))
+            
+    return render_template(url_for('change_password'))
+
+@app.route('/forgot-password', methods=['GET', 'POST'], strict_slashes=False)
+def forgot_password():
+    # would ask for email to reset password
+    if request.method == 'POST':
+        email = request.form.get('email')
+        # checks email with the db
+        # generate, save and send token to email
+        # redirect to the reset password page
+        
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'], strict_slashes=False)
+def reset_password(token):
     # Handle password reset logic
     pass
+
 
 if __name__ == '__main__':
     app.run(debug=True)
