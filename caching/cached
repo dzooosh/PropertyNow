@@ -1,0 +1,6 @@
+import redis
+import json
+
+redis_client = redis.Redis()
+
+redis_client.close()
