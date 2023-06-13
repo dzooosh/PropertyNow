@@ -95,3 +95,26 @@ class Property:
             (list): list of all properties linked to a user
         """
         return self.__storage.get_properties_for_seller(seller_id)
+
+    def update_property(self, property_id: str, property_details: Dict[str, Any]) -> Dict[str, str]:
+        """
+        updates property
+
+        Args:
+            property_id (str): id of property
+            property_details (dict): field and property
+
+        Return:
+            (dict): result of the operation
+        """
+        if not property_id or type(property_id) is not str:
+            return {'error': 'invalid property id'}
+        if not property_details or type(property_details) is not dict:
+            return {'error': 'invalid property details'}
+        if property_details.get('_id') is not None:
+            return {'error': "can't change the property id"}
+        if self.__storage.update_property(property_id, property_details):
+            return {'result': 'property updated'}
+        else:
+            return {'error': 'failed to update property details'}
+        

@@ -209,4 +209,22 @@ class Storage:
         result = collection.delete_many({'seller id': seller_id})
         return result.acknowledged
 
+    def update_property(self, property_id: str, property_details: Dict[str, Any]) -> bool:
+        """
+        updates property details
+
+        Args:
+            property_id (str): id of the property to update
+            property_details (dict): fields and values to update
+
+        Return:
+            (bool): result of the operation
+        """
+        if not property_id or type(property_id) is not str:
+            return False
+        if not property_details or type(property_details) is not dict:
+            return False
+        collection = self._Storage__getCollection('property')
+        result = collection.update_one({'_id': ObjectId(property_id)}, {'$set': property_details})
+        return result.acknowledged
 
