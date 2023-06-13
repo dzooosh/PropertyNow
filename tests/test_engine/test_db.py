@@ -222,5 +222,33 @@ class TestStorage(unittest.TestCase):
         deleted_properties = self.storage.get_properties_for_seller(str(seller_id))
         self.assertEqual(len(deleted_properties), 0)
 
+    def test_update_property_valid_input(self):
+        property_details = {
+            'name': 'Example Property',
+            'type': 'house',
+            'location': 'New York',
+            'seller id': str(self.user['_id'])
+        }
+        property_id = self.storage.add_property(property_details)
+        new_property_details = {
+            'name': 'another example property',
+            'type': 'apartment',
+        }
+        result = self.storage.update_property(property_id, new_property_details)
+        self.assertTrue(result)
+
+        updated_property = self.storage.get_property(property_id)
+        self.assertEqual(updated_property['name'], 'another example property')
+        self.assertEqual(updated_property['type'], 'apartment')
+        self.assertEqual(updated_property['location'], 'New York')
+
+    def test_update_property_invalid_id(self):
+        result = self.storage.update_property(None, {'name': 'Example Property'})
+        self.assertFalse(result)
+
+    def test_update_property_invalid_details(self):
+        result = self.storage.update_property('property_id', None)
+        self.assertFalse(result)
+
 if __name__ == '__main__':
     unittest.main()
