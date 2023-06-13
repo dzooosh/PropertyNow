@@ -1,12 +1,24 @@
 import secrets
-from flask import Flask, flash, render_template, redirect, url_for, request
-from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+
+from flask import (
+    Flask, flash,
+    render_template, redirect,
+    url_for, request, jsonify
+)
+from flask_login import (
+    LoginManager,
+    login_required,
+    login_user,
+    logout_user,
+    current_user
+)
+
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 from auth import Auth, bcrypt
 from models.user import User
 from models.property import Property
-from forms import RegistrationForm
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(32)
@@ -41,44 +53,45 @@ def load_user(email):
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    res = {'home': 'This is the homepage'}
+    return jsonify(res)
 
 
 @app.route('/signup', methods=['GET', 'POST'], strict_slashes=False)
 def signup():
-    form = RegistrationForm()
     if request.method == 'POST':
-        if form.validate_on_submit():  # if details entered are valid
-            # Retrieve form data
-            first_name = request.form.get('first_name')
-            last_name = request.form.get('last_name')
-            email = request.form.get('email')
-            password = request.form.get('password')
-            account_type = request.form.get('account_type')
+        # if details entered are valid
+        # Retrieve form data
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        account_type = request.form.get('account_type')
 
-            # check if user already exists
-            user = User()
-            user_exist = user.get_user(email)
-            if user_exist:
-                flash("Email already exists!", "error")
-                return render_template(url_for('signup'), form=form)
-            
-            # Authenticate and register the user to the db
-            reged_user = AUTH.signup_user(email=email,
-                                          password=password,
-                                          first_name=first_name,
-                                          last_name=last_name,
-                                          account_type = account_type
-                                          )
-            if reged_user:
-                flash("User Successfully Created", "succes")
-                return render_template(url_for('home'), reged_user=reged_user)
-            else:
-                # if the form is not validated, reload the signup form 
-                flash("Failed to Create User", "error")
-                return render_template(url_for('signup'), form=form)
+        # check if user already exists
+        user = User()
+        user_exist = user.get_user(email)
+        if user_exist:
+            flash("Email already exists!", "error")
+            msg = 'You have successfully signed up'
+            return msg
+
+        # Authenticate and register the user to the db
+        reged_user = AUTH.signup_user(email=email,
+                                      password=password,
+                                      first_name=first_name,
+                                      last_name=last_name,
+                                      account_type=account_type,
+                                      )
+        if reged_user:
+            flash("User Successfully Created", "succes")
+            return 'User Successfully created'
+        else:
+            # if the form is not validated, reload the signup form
+            flash("Failed to Create User", "error")
+            return "Failed to create User"
     # if request.method is GET
-    return render_template(url_for('signup'), form=form)
+    return render_template(url_for('signup'))
 
 
 @app.route('/login', methods=['GET', 'POST'], strict_slashes=False)
@@ -86,7 +99,7 @@ def login():
     # Redirect if user is already authenticated
     if current_user.is_authenticated:
         return redirect(url_for('home'))
-    
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -110,34 +123,46 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
-@app.route('/change-password', methods=['GET', 'POST'], strict_slashes=False)
+
+@app.route('/update_password', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
-def change_password():
+def update_password():
     if request.method == 'POST':
         old_password = request.form.get('old_password')
-        new_password  = request.form.get('new_password')
+        new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
 
-        user = user.get_user(current_user.email)
-        if bcrypt.check_password_hash(user['password'], old_password):
+        if bcrypt.check_password_hash(current_user['password'], old_password):
             if new_password == confirm_password:
-                user['password'] = new_password
-                flash("Password has been successfully changed!", "success")
-                return redirect(url_for('home'))
-            
-    return render_template(url_for('change_password'))
+                current_user['password'] = new_password
+                msg = {"messge": "Password has been successfully changed!"}
+                return jsonify(msg)
+        else:
+            return jsonify({"message": "Password does not match"})
+    return render_template(url_for('update_password'))
+
 
 @app.route('/forgot-password', methods=['GET', 'POST'], strict_slashes=False)
 def forgot_password():
     # would ask for email to reset password
     if request.method == 'POST':
         email = request.form.get('email')
-        # checks email with the db
-        # generate, save and send token to email
-        # redirect to the reset password page
-        
 
-@app.route('/reset-password/<token>', methods=['GET', 'POST'], strict_slashes=False)
+        # checks email with the db
+        user = user.get_user(email)
+        if user:
+            # Send password reset email
+            # send_password_reset_email(user)
+            msg = {"email": f"{email}", 'message': 'Password reset instructions have been sent to your email.'}
+            return jsonify(msg)
+        else:
+            return jsonify({"error": "The email does not exist"})
+
+    return render_template('forgot_password.html')
+
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'],
+           strict_slashes=False)
 def reset_password(token):
     # Handle password reset logic
     pass
