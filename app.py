@@ -72,9 +72,10 @@ def signup():
         user = User()
         user_exist = user.get_user(email)
         if user_exist:
-            flash("Email already exists!", "error")
-            msg = 'You have successfully signed up'
-            return msg
+            return jsonify({"error": "Email already exists!"})
+        else:
+            msg = {"message": 'You have successfully signed up'}
+            return jsonify(msg)
 
         # Authenticate and register the user to the db
         reged_user = AUTH.signup_user(email=email,
@@ -84,12 +85,10 @@ def signup():
                                       account_type=account_type,
                                       )
         if reged_user:
-            flash("User Successfully Created", "succes")
-            return 'User Successfully created'
+            return jsonify({"message": "User Successfully Created"})
         else:
             # if the form is not validated, reload the signup form
-            flash("Failed to Create User", "error")
-            return "Failed to create User"
+            return jsonify({"error": "Failed to Create User"})
     # if request.method is GET
     return render_template(url_for('signup'))
 
@@ -121,7 +120,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    return jsonify({"message": "You have been Logged Out"})
 
 
 @app.route('/update_password', methods=['GET', 'POST'], strict_slashes=False)
