@@ -34,7 +34,7 @@ class UserTests(unittest.TestCase):
             'last_name': 'Doe',
             'email': 'test@example.com',
             'password': 'password123',
-            'account type': 'buyer'
+            'account_type': 'buyer'
         }
         result = self.user.add_user(user_credentials)
         self.assertEqual(result, {'result': 'user created'})
@@ -46,7 +46,7 @@ class UserTests(unittest.TestCase):
             'email': 'test@example.com'
         }
         result = self.user.add_user(user_credentials)
-        self.assertEqual(result, {'error': 'Missing password, account type'})
+        self.assertEqual(result, {'error': 'Missing password, account_type'})
 
     def test_add_user_invalid_details(self):
         """
@@ -65,7 +65,7 @@ class UserTests(unittest.TestCase):
             'last_name': 'Doe',
             'email': 'test@example2.com',
             'password': 'password123',
-            'account type': 'buyer'
+            'account_type': 'buyer'
         }
         result = self.user.add_user(user_credentials)
         self.assertEqual(result, {'result': 'user created'})
@@ -83,7 +83,7 @@ class UserTests(unittest.TestCase):
             'last_name': 'Doe',
             'email': 'test@example3.com',
             'password': 'password123',
-            'account type': 'buyer'
+            'account_type': 'buyer'
         }
         result = self.user.add_user(user_credentials)
         self.assertEqual(result, {'result': 'user created'})
@@ -112,7 +112,7 @@ class UserTests(unittest.TestCase):
             'last_name': 'Doe',
             'email': 'test@example4.com',
             'password': 'password123',
-            'account type': 'buyer'
+            'account_type': 'buyer'
         }
         result = self.user.add_user(user_credentials)
         self.assertEqual(result, {'result': 'user created'})

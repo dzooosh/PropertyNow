@@ -76,7 +76,7 @@ class User:
         user = self.__storage.get_user(None, user_id)
         if not user:
             return {'error': "user doesn't exist"}
-        if user['account type'] == 'seller':
+        if user['account_type'] == 'seller':
             self.__storage.delete_properties_for_seller(user_id)
         if self.__storage.delete_user(user_id):
             return {'result': 'user deleted'}
