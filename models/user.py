@@ -1,11 +1,12 @@
 """
 `user` module
 """
+from flask_login import UserMixin
 from engine import storage
 from typing import Dict, Any, Optional
 
 
-class User:
+class User(UserMixin):
     """
     Abstraction layer for managing user-related operations.
 
@@ -96,3 +97,12 @@ class User:
             (bool): result of the operation
         """
         return self.__storage.update_user(user_id, user_details)
+
+        def is_authenticated(self):
+            return True
+        def is_active(self):
+            return True
+        def is_anonymous(self):
+            return False
+        def get_id(self):
+            return self._id

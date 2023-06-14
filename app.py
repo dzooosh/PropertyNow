@@ -15,7 +15,8 @@ from flask_login import (
 
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
-from auth import Auth, bcrypt
+from werkzeug.security import generate_password_hash, check_password_hash
+from auth import Auth
 from models.user import User
 from models.property import Property
 
@@ -28,12 +29,12 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'your_username'
 app.config['MAIL_PASSWORD'] = 'your_password'
 
-mail = Mail(app)  # handles mailing token to the user
 AUTH = Auth()
-user = User()
-login_manager = LoginManager()
-login_manager.init_app(app)
+mail = Mail(app)  # handles mailing token to the user
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+login_manager = LoginManager()
+
+login_manager.init_app(app)
 
 
 # flask-Login loads user object to know current_user
@@ -42,13 +43,13 @@ def load_user(email):
     """ load user object for flask-login to call for each
     authentication request
     Args:
-        user_id: the id attached to a user
+        email: the email attached to a user
     Return:
         User object
     """
     user = User()
-    user = user.get_user(email=email)
-    return user
+    return user.get_user(email)
+
 
 
 @app.route('/')
@@ -104,11 +105,11 @@ def login():
         if AUTH.validate_login(email, password):
             user = User()
             user = user.get_user(email)
-            login_user(user)
-            return redirect(url_for('home'))
+            #login_user(user)
+            return jsonify({"message": "Log in successful"})
+            #return redirect(url_for('home'))
         else:
-            return render_template('login.html',
-                                   error='Invalid username or password')
+            return jsonify({"error": "Invalid username or password"})
     # if request method is GET
     return render_template('login.html')
 
@@ -128,13 +129,16 @@ def update_password():
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
 
-        if bcrypt.check_password_hash(current_user['password'], old_password):
-            if new_password == confirm_password:
-                current_user['password'] = new_password
-                msg = {"messge": "Password has been successfully changed!"}
-                return jsonify(msg)
-        else:
-            return jsonify({"message": "Password does not match"})
+        if new_password != confirm_password:
+            return jsonify({'error': 'New password do not match'})
+
+        # check if old password matches password in database
+        if check_password_hash(current_user['password'], old_password):
+            current_user['password'] = new_password
+            msg = {"messge": "Password updated successfully!"}
+            return jsonify(msg)
+
+        return jsonify({"message": "Invalid old password"})
     return render_template(url_for('update_password'))
 
 

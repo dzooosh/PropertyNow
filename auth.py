@@ -1,16 +1,17 @@
 """ User Authentication """
-#from .app import app
-from flask import Flask, flash, render_template, redirect, url_for, request
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from flask import (
+    Flask,
+    flash,
+    render_template,
+    redirect,
+    url_for,
+    request
+)
 from models.user import User
-from flask_bcrypt import Bcrypt
 from uuid import uuid4
 from typing import Dict, Any
-
-
-app = Flask(__name__)
-
-
-bcrypt = Bcrypt(app)
 
 
 def _encode_password(password: str):
@@ -20,7 +21,7 @@ def _encode_password(password: str):
         Returns:
             the encoded password
         """
-        return bcrypt.generate_password_hash(password).decode('utf-8')
+        return generate_password_hash(password)
 
 
 class Auth:
@@ -66,7 +67,7 @@ class Auth:
             return False
         # use bcrypt to check the password against database
         db_pswd = user.get('password')
-        if bcrypt.check_password_hash(db_pswd, password):
+        if check_password_hash(db_pswd, password):
             return True
         else:
             return False
