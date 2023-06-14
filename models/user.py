@@ -37,13 +37,13 @@ class User:
             'last_name',
             'email',
             'password',
-            'account type'
+            'account_type'
         ]
         missing_fields = [field for field in required_fields if field.lower() not in fields]
         if missing_fields:
             return {'error': f'Missing {", ".join(missing_fields)}'}
 
-        if user_credentials['account type'] not in ['buyer', 'seller', 'admin']:
+        if user_credentials['account_type'] not in ['buyer', 'seller', 'admin']:
             return {'error': 'Invalid account type, accepted accounts buyer, seller and admin'}
 
         if self.__storage.add_user(user_credentials):

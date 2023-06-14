@@ -74,21 +74,18 @@ def signup():
         if user_exist:
             return jsonify({"error": "Email already exists!"})
         else:
-            msg = {"message": 'You have successfully signed up'}
-            return jsonify(msg)
-
-        # Authenticate and register the user to the db
-        reged_user = AUTH.signup_user(email=email,
-                                      password=password,
-                                      first_name=first_name,
-                                      last_name=last_name,
-                                      account_type=account_type,
-                                      )
-        if reged_user:
-            return jsonify({"message": "User Successfully Created"})
-        else:
-            # if the form is not validated, reload the signup form
-            return jsonify({"error": "Failed to Create User"})
+            # Authenticate and register the user to the db
+            reged_user = AUTH.signup_user(email=email,
+                                        password=password,
+                                        first_name=first_name,
+                                        last_name=last_name,
+                                        account_type=account_type,
+                                        )
+            if reged_user:
+                return jsonify({"message": "User Successfully Created"})
+            else:
+                # if the form is not validated, reload the signup form
+                return jsonify({"error": "Failed to Create User"})
     # if request.method is GET
     return render_template(url_for('signup'))
 
