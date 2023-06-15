@@ -52,6 +52,35 @@ class TestLRUCache(unittest.TestCase):
         value = self.cache.get("nonexistent_key")
         self.assertIsNone(value)
 
+    def test_delete_existing_key(self):
+        """
+        Test deleting an existing key
+        """
+        self.cache.put("key1", "value1")
+        self.cache.delete("key1")
+        self.assertIsNone(self.cache.get("key1"))
+
+    def test_delete_nonexistent_key(self):
+        """
+        Test deleting a nonexistent key
+        """
+        self.cache.delete("nonexistent_key")
+        self.assertIsNone(self.cache.get("nonexistent_key"))
+
+    def test_update_existing_key(self):
+        """
+        Test updating an existing key
+        """
+        self.cache.put("key1", "value1")
+        self.cache.update("key1", "new_value")
+        self.assertEqual(self.cache.get("key1"), "new_value")
+
+    def test_update_nonexistent_key(self):
+        """
+        Test updating a nonexistent key
+        """
+        self.cache.update("nonexistent_key", "value1")
+        self.assertEqual(self.cache.get("nonexistent_key"), "value1")
 
 if __name__ == "__main__":
     unittest.main()

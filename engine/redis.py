@@ -19,6 +19,13 @@ class LRUCache:
     get(key: Any) -> Any:
         Returns the value associated with the given key.
         If the key doesn't exist, returns None.
+
+    delete(key: Any) -> None:
+        Removes the key-value pair from the cache, if it exists.
+
+    update(key: Any, value: Any) -> None:
+        Updates the value associated with the given key in the cache.
+        If the key doesn't exist, adds the key-value pair to the cache.
     """
 
     MAX_ITEMS = 100
@@ -76,6 +83,45 @@ class LRUCache:
             return value.decode('utf-8')
         else:
             return None
+
+    def delete(self, key):
+        """
+        Removes the key-value pair from the cache, if it exists.
+
+        Parameters:
+        ----------
+        key : Any
+            The key to be removed from the cache.
+
+        Returns:
+        -------
+        None
+        """
+        if self.__cacheClient.exists(key):
+            self.__cacheClient.delete(key)
+            self.__cacheClient.execute_command('LREM', 'LRU_KEYS', 0, key)
+
+    def update(self, key, value):
+        """
+        Updates the value associated with the given key in the cache.
+        If the key doesn't exist, adds the key-value pair to the cache.
+
+        Parameters:
+        ----------
+        key : Any
+            The key to be updated or added to the cache.
+        value : Any
+            The new value associated with the key.
+
+        Returns:
+        -------
+        None
+        """
+        if self.__cacheClient.exists(key):
+            self.__cacheClient.set(key, value)
+            self.__cacheClient.execute_command('LREM', 'LRU_KEYS', 0, key)
+        else:
+            self.put(key, value)
 
     def flush_database(self):
         """
