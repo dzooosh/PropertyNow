@@ -2,7 +2,7 @@ import secrets
 import json
 
 from flask import (
-    Flask, flash,
+    Flask, flash, abort,
     render_template, redirect,
     url_for, request, jsonify
 )
@@ -39,19 +39,6 @@ serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 app.config['JWT_SECRET_KEY'] = secrets.token_hex(32)
 jwt = JWTManager(app)
 
-# flask-Login loads user object to know current_user
-@login_manager.user_loader
-def load_user(email):
-    """ load user object for flask-login to call for each
-    authentication request
-    Args:
-        email: the email attached to a user
-    Return:
-        User object
-    """
-    user = User()
-    return user.get_user(email)
-
 
 @app.route('/auth/signup', methods=['POST'], strict_slashes=False)
 def signup():
@@ -87,59 +74,54 @@ def login():
 
     if not AUTH.validate_login(email, password):
         return jsonify({"message": "Invalid email or password"}), 401
-    # Authenticate the user by checking the credentials against the storage
-    user = User()
-    user = user.get_user(email)
 
     access_token = create_access_token(identity=email)
     return jsonify({'access_token': access_token}), 200
 
 
 @app.route('/logout')
-@login_required
 def logout():
-    logout_user()
+    
     return jsonify({"message": "You have been Logged Out"})
 
 
-@app.route('/update_password', methods=['GET', 'POST'], strict_slashes=False)
-@login_required
+@app.route('/auth/update_password', methods=['POST'], strict_slashes=False)
+@jwt_required()
 def update_password():
-    if request.method == 'POST':
-        old_password = request.form.get('old_password')
-        new_password = request.form.get('new_password')
-        confirm_password = request.form.get('confirm_password')
+        old_password = request.json.get('old_password')
+        new_password = request.json.get('new_password')
+        confirm_password = request.json.get('confirm_password')
 
         if new_password != confirm_password:
-            return jsonify({'error': 'New password do not match'})
+            return jsonify({'error': 'New password do not match'}), 400
 
-        # check if old password matches password in database
-        if check_password_hash(current_user['password'], old_password):
-            current_user['password'] = new_password
-            msg = {"messge": "Password updated successfully!"}
-            return jsonify(msg)
+        # check if it's current user accessing this
+        current_user = get_jwt_identity()
+        if not current_user:
+             abort(403, message="Not authorized")
 
-        return jsonify({"message": "Invalid old password"})
-    return render_template(url_for('update_password'))
+        # check if old password is same as provided one
+        user = User()
+        user_exist = user.get_user(current_user)
+        if check_password_hash(user_exist['password'], old_password):
+            user_exist['password'] = new_password
+            return jsonify({"messge": "Password updated successfully!"}), 200
+
+        return jsonify({"message": "Invalid old password"}), 400
 
 
-@app.route('/forgot-password', methods=['GET', 'POST'], strict_slashes=False)
+@app.route('/forgot-password', methods=['POST'], strict_slashes=False)
 def forgot_password():
-    # would ask for email to reset password
-    if request.method == 'POST':
-        email = request.form.get('email')
+    email = request.json.get('email')
 
-        # checks email with the db
-        user = user.get_user(email)
-        if user:
-            # Send password reset email
-            # send_password_reset_email(user)
-            msg = {"email": f"{email}", 'message': 'Password reset instructions have been sent to your email.'}
-            return jsonify(msg)
-        else:
-            return jsonify({"error": "The email does not exist"})
-
-    return render_template('forgot_password.html')
+    # checks email with the db
+    user = user.get_user(email)
+    if user:
+        # Send password reset email
+        # send_password_reset_email(user)
+        return jsonify({"message": "Password reset instructions have been sent to your email."})
+    else:
+        return jsonify({"error": "The email does not exist"})
 
 
 @app.route('/reset-password/<token>', methods=['GET', 'POST'],
