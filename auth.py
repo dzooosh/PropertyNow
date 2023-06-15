@@ -10,7 +10,6 @@ from flask import (
     request
 )
 from models.user import User
-from uuid import uuid4
 from typing import Dict, Any
 
 

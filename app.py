@@ -1,16 +1,17 @@
 import secrets
+import json
 
 from flask import (
     Flask, flash,
     render_template, redirect,
     url_for, request, jsonify
 )
-from flask_login import (
-    LoginManager,
-    login_required,
-    login_user,
-    logout_user,
-    current_user
+
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    get_jwt_identity,
+    jwt_required
 )
 
 from flask_mail import Mail, Message
@@ -23,6 +24,7 @@ from models.property import Property
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(32)
+
 app.config['MAIL_SERVER'] = 'your_mail_server'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -32,10 +34,10 @@ app.config['MAIL_PASSWORD'] = 'your_password'
 AUTH = Auth()
 mail = Mail(app)  # handles mailing token to the user
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-login_manager = LoginManager()
 
-login_manager.init_app(app)
-
+# Setup the Flask-JWT-Extended extension
+app.config['JWT_SECRET_KEY'] = secrets.token_hex(32)
+jwt = JWTManager(app)
 
 # flask-Login loads user object to know current_user
 @login_manager.user_loader
@@ -51,18 +53,8 @@ def load_user(email):
     return user.get_user(email)
 
 
-
-@app.route('/')
-def home():
-    res = {'home': 'This is the homepage'}
-    return jsonify(res)
-
-
-@app.route('/signup', methods=['GET', 'POST'], strict_slashes=False)
+@app.route('/auth/signup', methods=['POST'], strict_slashes=False)
 def signup():
-    if request.method == 'POST':
-        # if details entered are valid
-        # Retrieve form data
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
         email = request.form.get('email')
@@ -83,35 +75,24 @@ def signup():
                                         account_type=account_type,
                                         )
             if reged_user:
-                return jsonify({"message": "User Successfully Created"})
+                return jsonify({"message": "User Successfully Created"}), 201
             else:
                 # if the form is not validated, reload the signup form
                 return jsonify({"error": "Failed to Create User"})
-    # if request.method is GET
-    return render_template(url_for('signup'))
 
-
-@app.route('/login', methods=['GET', 'POST'], strict_slashes=False)
+@app.route('/auth/login', methods=['POST'], strict_slashes=False)
 def login():
-    # Redirect if user is already authenticated
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
+    email = request.json.get('email', None)
+    password = request.json.get('password', None)
 
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+    if not AUTH.validate_login(email, password):
+        return jsonify({"message": "Invalid email or password"}), 401
+    # Authenticate the user by checking the credentials against the storage
+    user = User()
+    user = user.get_user(email)
 
-        # Authenticate the user by checking the credentials against the storage
-        if AUTH.validate_login(email, password):
-            user = User()
-            user = user.get_user(email)
-            #login_user(user)
-            return jsonify({"message": "Log in successful"})
-            #return redirect(url_for('home'))
-        else:
-            return jsonify({"error": "Invalid username or password"})
-    # if request method is GET
-    return render_template('login.html')
+    access_token = create_access_token(identity=email)
+    return jsonify({'access_token': access_token}), 200
 
 
 @app.route('/logout')

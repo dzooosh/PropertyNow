@@ -10,7 +10,6 @@ class User(UserMixin):
     """
     Abstraction layer for managing user-related operations.
 
-    Attributes:
         storage (Storage): An instance of the Storage class for interacting with the database.
     """
 
@@ -97,12 +96,3 @@ class User(UserMixin):
             (bool): result of the operation
         """
         return self.__storage.update_user(user_id, user_details)
-
-        def is_authenticated(self):
-            return True
-        def is_active(self):
-            return True
-        def is_anonymous(self):
-            return False
-        def get_id(self):
-            return self._id
