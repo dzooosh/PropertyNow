@@ -18,6 +18,28 @@ class Property:
         """
         self.__storage = storage
 
+    def get_properties(self, page: int, page_size: int) -> List[Dict[str, Any]]:
+        """
+        retreives properties for page
+
+        args:
+            page (int): current page
+            page_size (int): page size
+        
+        return:
+            properties (list): list of properties
+        """
+        if type(page) is not int:
+            return {'error': 'page must be int'}
+        if type(page_size) is not int:
+            return {'error': 'page_size must be int'}
+        if page < 0:
+            return {'error': 'page must be >= 0'}
+        if page_size < 0:
+            return {'error': 'page_size must be >= 0'}
+        properties = self.__storage(page, page_size)
+        return properties
+
     def add_property(self, property_details: Dict[str, Any]) -> Dict[str, str]:
         """
         adds a new property
