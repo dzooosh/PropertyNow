@@ -1,6 +1,9 @@
 import unittest
 from pymongo.collection import Collection
+from pymongo import MongoClient, collection
+from bson import ObjectId
 from engine import storage
+from engine.redis import LRUCache
 
 class TestStorage(unittest.TestCase):
 
@@ -13,6 +16,7 @@ class TestStorage(unittest.TestCase):
         }
         result = cls.storage.add_user(user_credentials)
         cls.user = cls.storage.get_user(user_credentials['email'])
+        cls.client = MongoClient('mongodb://localhost:27017')
 
     @classmethod
     def tearDownClass(cls):
@@ -27,6 +31,24 @@ class TestStorage(unittest.TestCase):
         for email in user_emails:
             user_id = str(cls.storage.get_user(email).get('_id'))
             cls.storage.delete_user(user_id)
+
+    def setUp(self):
+        self.db = self.client['propertyNow']
+        self.cache = LRUCache()
+        self.properties = [
+            {'_id': ObjectId(), 'name': 'Property 1', 'price': 100000},
+            {'_id': ObjectId(), 'name': 'Property 2', 'price': 200000},
+            {'_id': ObjectId(), 'name': 'Property 3', 'price': 300000}
+        ]
+        self.db['property'].insert_many(self.properties)
+
+        self.storage = storage
+        self.storage._Storage__dbClient = self.db
+        self.storage._Storage__cacheClient = self.cache
+
+    def tearDown(self):
+        self.db['property'].delete_many({})
+
 
     def test_add_user(self):
         """
@@ -249,6 +271,40 @@ class TestStorage(unittest.TestCase):
     def test_update_property_invalid_details(self):
         result = self.storage.update_property('property_id', None)
         self.assertFalse(result)
+
+    def test_get_properties_page_0_page_size_2(self):
+        page = 0
+        page_size = 2
+        expected_properties = self.properties[:2]
+        properties = self.storage.get_properties(page, page_size)
+        self.assertEqual(properties, expected_properties)
+
+    def test_get_properties_page_1_page_size_2(self):
+        page = 1
+        page_size = 2
+        expected_properties = self.properties[2:]
+        properties = self.storage.get_properties(page, page_size)
+        self.assertEqual(properties, expected_properties)
+
+    def test_get_properties_invalid_page_and_page_size(self):
+        page = -1
+        page_size = 0
+        properties = self.storage.get_properties(page, page_size)
+        self.assertIsNone(properties)
+
+    def test_get_properties_page_size_larger_than_properties(self):
+        page = 0
+        page_size = 10
+        expected_properties = self.properties
+        properties = self.storage.get_properties(page, page_size)
+        self.assertEqual(properties, expected_properties)
+
+    def test_get_properties_page_size_larger_than_remaining_properties(self):
+        page = 1
+        page_size = 10
+        expected_properties = []
+        properties = self.storage.get_properties(page, page_size)
+        self.assertEqual(properties, expected_properties)
 
 if __name__ == '__main__':
     unittest.main()

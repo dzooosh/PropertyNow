@@ -169,6 +169,26 @@ class Storage:
                 property['_id'] = str(property['_id'])
             self.__cacheClient.put(property_id, property)
         return property
+
+    def get_properties(self, page: int, page_size: int) -> List[Dict[str, Any]]:
+        """
+        retreives properties for page
+
+        args:
+            page (int): current page
+            page_size (int): page size
+        
+        return:
+            properties (list): list of properties
+        """
+        if page < 0 or page_size < 0:
+            return
+        collection = self._Storage__getCollection('property')
+        try:
+            properties = collection.find().skip(page * page_size).limit(page_size)
+        except Exception:
+            return
+        return list(properties)
     
     def delete_property(self, property_id: str) -> bool:
         """
