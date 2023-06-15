@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from engine import redisCache
+from engine.redis import LRUCache
 
 
 class TestLRUCache(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestLRUCache(unittest.TestCase):
         """
         Create an instance of LRUCache for testing
         """
-        cls.cache = redisCache
+        cls.cache = LRUCache()
 
     @classmethod
     def tearDownClass(cls):

@@ -191,7 +191,7 @@ class TestStorage(unittest.TestCase):
         self.assertFalse(result)
 
     def test_delete_property(self):
-        property_id = self.storage.add_property({"title": "Test Property", "seller_id": self.user['_id']})
+        property_id = self.storage.add_property({"title": "Test Property", "seller_id": str(self.user['_id'])})
         result = self.storage.delete_property(property_id)
         self.assertTrue(result)
         deleted_property = self.storage.get_property(property_id)

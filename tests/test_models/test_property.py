@@ -1,5 +1,6 @@
 import unittest
 from engine import storage
+from engine.redis import LRUCache
 from bson import ObjectId
 from models.property import Property
 from typing import Dict, Any, List
@@ -19,6 +20,7 @@ class TestProperty(unittest.TestCase):
         }
         result = cls.__storage.add_user(user_credentials)
         cls.user = cls.__storage.get_user(user_credentials['email'])
+        cls.cache = LRUCache()
 
     @classmethod
     def tearDownClass(cls):
@@ -29,6 +31,8 @@ class TestProperty(unittest.TestCase):
         for email in user_emails:
             user_id = str(cls.__storage.get_user(email)['_id'])
             cls.__storage.delete_user(user_id)
+        cls.cache.flush_database()
+        
 
     def test_add_property(self):
         property_details = {
@@ -84,7 +88,7 @@ class TestProperty(unittest.TestCase):
         self.assertTrue('property id' in result.keys())
         property_id = result['property id']
         property = self.property.get_property(property_id)
-        self.assertEqual(property['_id'], ObjectId(property_id))
+        self.assertEqual(property['_id'], property_id)
 
     def test_delete_property(self):
         property_details = {

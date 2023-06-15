@@ -4,6 +4,7 @@
 
 
 from pymongo import MongoClient, collection
+from engine.redis import LRUCache
 from bson import ObjectId
 from typing import Dict, Any, List
 from os import environ
@@ -27,6 +28,7 @@ class Storage:
         DB_DATABASE = environ.get('DB_DATABASE', 'propertyNow')
         client = MongoClient(f'mongodb://{DB_HOST}:{DB_PORT}')
         self.__dbClient = client[DB_DATABASE]
+        self.__cacheClient = LRUCache()
 
     def _Storage__getCollection(self, collection_name: str) -> collection.Collection:
         """
@@ -137,7 +139,9 @@ class Storage:
         collection = self._Storage__getCollection('property')
         try:
             result = collection.insert_one(property_details)
-            return str(result.inserted_id)
+            property_id = str(result.inserted_id)
+            self.__cacheClient.put(property_id, self.get_property(property_id))
+            return property_id
         except Exception:
             return
 
@@ -153,12 +157,17 @@ class Storage:
         """
         if not property_id or type(property_id) is not str:
             return
-        collection = self._Storage__getCollection('property')
-        try:
-            property_id = ObjectId(property_id)
-        except Exception:
-            return
-        property = collection.find_one({ '_id': property_id })
+        property = self.__cacheClient.get(property_id)
+        if not property:
+            collection = self._Storage__getCollection('property')
+            try:
+                object_id = ObjectId(property_id)
+            except Exception:
+                return
+            property = collection.find_one({ '_id': object_id })
+            if property:
+                property['_id'] = str(property['_id'])
+            self.__cacheClient.put(property_id, property)
         return property
     
     def delete_property(self, property_id: str) -> bool:
@@ -172,9 +181,10 @@ class Storage:
             (bool): result of the operation
         """
         if not property_id or type(property_id) is not str:
-            return
+            return False
         collection = self._Storage__getCollection('property')
         result = collection.delete_one({'_id': ObjectId(property_id)})
+        self.__cacheClient.delete(property_id)
         return result.acknowledged
 
     def get_properties_for_seller(self, seller_id: str) -> List[Dict[str, Any]]:
@@ -226,5 +236,9 @@ class Storage:
             return False
         collection = self._Storage__getCollection('property')
         result = collection.update_one({'_id': ObjectId(property_id)}, {'$set': property_details})
+        property = collection.find_one({'_id': ObjectId(property_id)})
+        if property:
+            property['_id'] = str(property['_id'])
+            self.__cacheClient.update(property_id, property)
         return result.acknowledged
 

@@ -3,6 +3,7 @@ MRUCache module
 """
 from os import environ
 import redis
+import json
 
 
 class LRUCache:
@@ -54,6 +55,7 @@ class LRUCache:
         -------
         None
         """
+        value = json.dumps(value)
         self.__cacheClient.set(key, value)
         if self.__cacheClient.dbsize() > self.MAX_ITEMS:
             lru_key = self.__cacheClient.execute_command('LINDEX', 'LRU_KEYS', -1)
@@ -80,7 +82,8 @@ class LRUCache:
         if value:
             self.__cacheClient.execute_command('LREM', 'LRU_KEYS', 0, key)
             self.__cacheClient.execute_command('LPUSH', 'LRU_KEYS', key)
-            return value.decode('utf-8')
+            value = value.decode('utf-8')
+            return json.loads(value)
         else:
             return None
 
@@ -118,6 +121,7 @@ class LRUCache:
         None
         """
         if self.__cacheClient.exists(key):
+            value = json.dumps(value)
             self.__cacheClient.set(key, value)
             self.__cacheClient.execute_command('LREM', 'LRU_KEYS', 0, key)
         else:
