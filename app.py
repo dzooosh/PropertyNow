@@ -17,6 +17,7 @@ from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 from werkzeug.security import generate_password_hash, check_password_hash
 from auth import Auth
+from views import property_views
 from models.user import User
 from models.property import Property
 
@@ -28,6 +29,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'your_username'
 app.config['MAIL_PASSWORD'] = 'your_password'
+app.register_blueprint(property_views, url_prefix="/property")
 
 AUTH = Auth()
 mail = Mail(app)  # handles mailing token to the user
