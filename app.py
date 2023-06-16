@@ -20,7 +20,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'alongejoshua@gmail.com'
-app.config['MAIL_PASSWORD'] = 'gutxqezdybimqlib'
+app.config['MAIL_PASSWORD'] = '*gutxqezdybimqlib*'
 
 app.register_blueprint(property_views, url_prefix="/properties")
 app.register_blueprint(admin, url_prefix="/admin")
@@ -40,8 +40,7 @@ def forgot_password():
     email = request.json.get('email')
 
     # checks email with the db
-    user = User()
-    user = user.get_user(email)
+    user = userClass.get_user(email)
     if user:
         # Generate a random reset token
         token = AUTH.get_reset_token(email)
@@ -55,6 +54,8 @@ def forgot_password():
         js_msg = {"message":
                   "Password reset instructions have been sent to your email."
                   }
+        # Send the email
+        mail.send(msg)
         return jsonify(js_msg)
     else:
         return jsonify({"error": "The email does not exist"}), 404
