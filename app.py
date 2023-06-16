@@ -26,11 +26,11 @@ from models.property import Property
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 
-app.config['MAIL_SERVER'] = 'your_mail_server'
+app.config['MAIL_SERVER'] = 'localhost'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your_username'
-app.config['MAIL_PASSWORD'] = 'your_password'
+app.config['MAIL_USERNAME'] = 'propertynow'
+app.config['MAIL_PASSWORD'] = 'propertynow'
 app.register_blueprint(property_views, url_prefix="/property")
 
 AUTH = Auth()
@@ -44,11 +44,11 @@ jwt = JWTManager(app)
 
 @app.route('/auth/signup', methods=['POST'], strict_slashes=False)
 def signup():
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        account_type = request.form.get('account_type')
+        first_name = request.json.get('first_name')
+        last_name = request.json.get('last_name')
+        email = request.json.get('email')
+        password = request.json.get('password')
+        account_type = request.json.get('account_type')
 
         # check if user already exists
         user = User()
@@ -120,6 +120,7 @@ def forgot_password():
     user = user.get_user(email)
     if user:
         # Send password reset email
+        msg = Message("")
         # send_password_reset_email(user)
         return jsonify({"message": "Password reset instructions have been sent to your email."})
     else:
