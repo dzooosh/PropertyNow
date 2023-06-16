@@ -17,7 +17,7 @@ def get_properties():
     page = request.args.get('page', default=0, type=int)
     page_size = request.args.get('limit', default=20, type=int)
     properties = propertyClass.get_properties(page, page_size)
-    if not properties:
+    if properties is None:
         return jsonify({'error': 'Failed to retreive properties'}), 500
     for property in properties:
         property['_id'] = str(property['_id'])
