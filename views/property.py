@@ -19,6 +19,8 @@ def get_properties():
     properties = propertyClass.get_properties(page, page_size)
     if not properties:
         return jsonify({'error': 'Failed to retreive properties'}), 500
+    for property in properties:
+        property['_id'] = str(property['_id'])
     return jsonify(properties), 200
 
 @property_views.route('/<string:property_id>', methods=['GET'], strict_slashes=False)
