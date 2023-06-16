@@ -22,7 +22,7 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'alongejoshua@gmail.com'
 app.config['MAIL_PASSWORD'] = 'gutxqezdybimqlib'
 
-app.register_blueprint(property_views, url_prefix="/property")
+app.register_blueprint(property_views, url_prefix="/properties")
 app.register_blueprint(admin, url_prefix="/admin")
 app.register_blueprint(auth_views, url_prefix="/auth")
 
