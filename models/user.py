@@ -1,12 +1,11 @@
 """
 `user` module
 """
-from flask_login import UserMixin
 from engine import storage
 from typing import Dict, Any, Optional
 
 
-class User(UserMixin):
+class User():
     """
     Abstraction layer for managing user-related operations.
 
