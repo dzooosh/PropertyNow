@@ -21,9 +21,11 @@ from auth import Auth
 from views import property_views
 from models.user import User
 from models.property import Property
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 
 app.config['MAIL_SERVER'] = 'localhost'
