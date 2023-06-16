@@ -25,7 +25,7 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 
 app.config['MAIL_SERVER'] = 'your_mail_server'
