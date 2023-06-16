@@ -4,7 +4,7 @@ import json
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail, Message
-from Auth.auth import Auth
+from auth.auth import Auth
 from views import property_views, admin, auth_views
 from models.user import User
 from flask_cors import CORS
