@@ -1,0 +1,238 @@
+{
+    "properties": [
+    {
+    "title": "Spacious Family Home",
+    "description": "A beautiful and spacious home with stunning views.",
+    "price": 500000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Nyamirambo",
+    "coordinates": {
+    "latitude": -1.9486,
+    "longitude": 30.0554
+    }
+    }
+    },
+    {
+    "title": "Cozy Apartment",
+    "description": "A comfortable apartment in a peaceful neighborhood.",
+    "price": 250000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Kacyiru",
+    "coordinates": {
+    "latitude": -1.9536,
+    "longitude": 30.0714
+    }
+    }
+    },
+    {
+    "title": "Modern Villa",
+    "description": "A modern villa with luxurious amenities.",
+    "price": 800000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Kimihurura",
+    "coordinates": {
+    "latitude": -1.9448,
+    "longitude": 30.0611
+    }
+    }
+    },
+    {
+    "title": "Charming Bungalow",
+    "description": "A charming bungalow surrounded by nature.",
+    "price": 350000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Gisozi",
+    "coordinates": {
+    "latitude": -1.9489,
+    "longitude": 30.0997
+    }
+    }
+    },
+    {
+    "title": "Luxury Penthouse",
+    "description": "A luxurious penthouse with panoramic city views.",
+    "price": 1200000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Remera",
+    "coordinates": {
+    "latitude": -1.9498,
+    "longitude": 30.1034
+    }
+    }
+    },
+    {
+    "title": "Elegant Townhouse",
+    "description": "An elegant townhouse in a gated community.",
+    "price": 450000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Kimironko",
+    "coordinates": {
+    "latitude": -1.9561,
+    "longitude": 30.1343
+    }
+    }
+    },
+    {
+    "title": "Spacious Family Home",
+    "description": "A spacious home perfect for families.",
+    "price": 550000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Gacuriro",
+    "coordinates": {
+    "latitude": -1.9519,
+    "longitude": 30.1308
+    }
+    }
+    },
+    {
+    "title": "Stunning Duplex",
+    "description": "A stunning duplex with modern design.",
+    "price": 650000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Kimisagara",
+    "coordinates": {
+    "latitude": -1.9665,
+    "longitude": 30.0789
+    }
+    }
+    },
+    {
+    "title": "Mountain Retreat",
+    "description": "A peaceful retreat in the beautiful Rwandan mountains.",
+    "price": 380000,
+    "location": {
+    "city": "Musanze",
+    "neighborhood": "Kinigi",
+    "coordinates": {
+    "latitude": -1.4916,
+    "longitude": 29.6315
+    }
+    }
+    },
+    {
+    "title": "Lakefront Villa",
+    "description": "A luxurious villa with stunning views of Lake Kivu.",
+    "price": 900000,
+    "location": {
+    "city": "Rubavu",
+    "neighborhood": "Gisenyi",
+    "coordinates": {
+    "latitude": -1.7024,
+    "longitude": 29.2549
+    }
+    }
+    },
+    {
+    "title": "Cosy Cottage",
+    "description": "A cozy cottage nestled in the Rwandan countryside.",
+    "price": 280000,
+    "location": {
+    "city": "Ruhengeri",
+    "neighborhood": "Kinigi",
+    "coordinates": {
+    "latitude": -1.5086,
+    "longitude": 29.6315
+    }
+    }
+    },
+    {
+    "title": "Riverside Apartment",
+    "description": "An apartment overlooking a beautiful river.",
+    "price": 320000,
+    "location": {
+    "city": "Nyagatare",
+    "neighborhood": "Musheri",
+    "coordinates": {
+    "latitude": -0.9840,
+    "longitude": 30.2479
+    }
+    }
+    },
+    {
+    "title": "Traditional House",
+    "description": "A traditional Rwandan house with cultural touches.",
+    "price": 200000,
+    "location": {
+    "city": "Huye",
+    "neighborhood": "Muganza",
+    "coordinates": {
+    "latitude": -2.6082,
+    "longitude": 29.7416
+    }
+    }
+    },
+    {
+    "title": "Serenity Villa",
+    "description": "A serene villa surrounded by lush greenery.",
+    "price": 750000,
+    "location": {
+    "city": "Gisenyi",
+    "neighborhood": "Nyamyumba",
+    "coordinates": {
+    "latitude": -1.6723,
+    "longitude": 29.2704
+    }
+    }
+    },
+    {
+    "title": "City Center Apartment",
+    "description": "A modern apartment in the heart of Kigali.",
+    "price": 380000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "CBD",
+    "coordinates": {
+    "latitude": -1.9492,
+    "longitude": 30.0596
+    }
+    }
+    },
+    {
+    "title": "Hilltop Mansion",
+    "description": "A luxurious mansion perched on top of a hill.",
+    "price": 1500000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Kabeza",
+    "coordinates": {
+    "latitude": -1.9342,
+    "longitude": 30.1366
+    }
+    }
+    },
+    {
+    "title": "Secluded Retreat",
+    "description": "A secluded retreat surrounded by nature.",
+    "price": 420000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Nyarutarama",
+    "coordinates": {
+    "latitude": -1.9383,
+    "longitude": 30.0850
+    }
+    }
+    },
+    {
+    "title": "Colonial Style Home",
+    "description": "A charming colonial style home with a vintage touch.",
+    "price": 480000,
+    "location": {
+    "city": "Kigali",
+    "neighborhood": "Kimihurura",
+    "coordinates": {
+    "latitude": -1.9542,
+    "longitude": 30.0602
+    }
+    }
+    }
+    ]
+    }

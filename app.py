@@ -33,7 +33,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'your_username'
 app.config['MAIL_PASSWORD'] = 'your_password'
-app.register_blueprint(property_views, url_prefix="/property")
+app.register_blueprint(property_views, url_prefix="/properties")
 
 AUTH = Auth()
 mail = Mail(app)  # handles mailing token to the user

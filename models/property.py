@@ -37,7 +37,7 @@ class Property:
             return {'error': 'page must be >= 0'}
         if page_size < 0:
             return {'error': 'page_size must be >= 0'}
-        properties = self.__storage(page, page_size)
+        properties = self.__storage.get_properties(page, page_size)
         return properties
 
     def add_property(self, property_details: Dict[str, Any]) -> Dict[str, str]:
@@ -57,7 +57,6 @@ class Property:
            'title',
            'description',
            'price',
-           'seller id',
            'location'
         ]
         missing_fields = [field for field in required_fields if field not in fields]
@@ -73,9 +72,6 @@ class Property:
         missing_fields = [field for field in required_location_fields if field not in fields]
         if missing_fields:
             return {'error': f'Missing location fields: {", ".join(missing_fields)}'}
-        seller = self.__storage.get_user(None, property_details['seller id'])
-        if not seller:
-            return {'error': "seller doesn't exist"}
         property_id = self.__storage.add_property(property_details)
         if property_id:
             return {'property id': property_id}
