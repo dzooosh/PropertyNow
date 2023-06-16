@@ -54,7 +54,12 @@ def login():
 
     if not AUTH.validate_login(email, password):
         return jsonify({"message": "Invalid email or password"}), 401
-
+    
+    # check if user is an admin
+    if userClass.get_user(email)['account_type'] == 'admin':
+        redirect_url = 'http://localhost:5173/admin/'
+        return jsonify({'redirect': redirect_url})
+    
     access_token = create_access_token(identity=email)
     return jsonify({'access_token': access_token}), 200
 

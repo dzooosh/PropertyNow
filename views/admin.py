@@ -6,3 +6,9 @@ Admin - Add (user, admin, properties)
         Update(properties, User (change user to admin))
         Delete(Any)
 """
+from views import admin
+
+
+@admin.routes('/')
+def admin_home():
+    return "Welcome To Admin Home"
