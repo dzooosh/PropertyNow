@@ -14,7 +14,7 @@ def get_image(filename):
     """
     return property image
     """
-    image_path = f'~/property_images/{filename}'
+    image_path = f'property_images/{filename}'
     return send_file(image_path, mimetype='image/png')
 
 @property_views.route('/', methods=['GET'], strict_slashes=False)
@@ -29,7 +29,7 @@ def get_properties():
         return jsonify({'error': 'Failed to retreive properties'}), 500
     for property in properties:
         property['_id'] = str(property['_id'])
-        property['image_url'] = 'http://localhost:5000/properties/images/' + property['_id'].png
+        property['image_url'] = f'http://localhost:5000/properties/images/{property.get("_id")}.png'
         print(property['image_url'])
     return jsonify(properties), 200
 

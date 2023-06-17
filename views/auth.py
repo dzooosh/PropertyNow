@@ -25,7 +25,7 @@ def signup():
     last_name = request.json.get('last_name')
     email = request.json.get('email')
     password = request.json.get('password')
-    account_type = request.json.get('account_type')
+    account_type = request.json.get('account_type', 'buyer')
 
     # check if user already exists
     user_exist = userClass.get_user(email)
@@ -39,7 +39,7 @@ def signup():
                                       last_name=last_name,
                                       account_type=account_type,
                                       )
-        if reged_user:
+        if 'result' in reged_user.keys():
             return jsonify({"message": "User Successfully Created"}), 201
         else:
             # if the form is not validated, reload the signup form
