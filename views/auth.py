@@ -30,7 +30,7 @@ def signup():
     # check if user already exists
     user_exist = userClass.get_user(email)
     if user_exist:
-        return jsonify({"error": "Email already exists!"})
+        return jsonify({"error": "Email already exists!"}), 401
     else:
         # Authenticate and register the user to the db
         reged_user = AUTH.signup_user(email=email,
@@ -46,6 +46,7 @@ def signup():
             return jsonify({"error": "Failed to Create User"})
 
 
+
 @auth_views.route('/login', methods=['POST'], strict_slashes=False)
 def login():
     email = request.json.get('email', None)
@@ -53,16 +54,14 @@ def login():
 
     if not AUTH.validate_login(email, password):
         return jsonify({"message": "Invalid email or password"}), 401
-    
-    access_token = create_access_token(identity=email)
-    # check if user is an admin
-    if userClass.get_user(email)['account_type'] == 'admin':
-        redirect_url = 'http://localhost:5173/admin/'
-        return jsonify({'redirect': redirect_url,
-                        'access_token': access_token}), 302
-    
-    return jsonify({'redirect': 'http://localhost:5173/properties/',
-                    'access_token': access_token}), 302
+
+    user = {
+        "email": email,
+        "account_type": userClass.get_user(email)['account_type']
+    }
+    access_token = create_access_token(identity=user)
+
+    return jsonify(access_token=access_token), 200
 
 
 @auth_views.route('/logout')
@@ -83,8 +82,8 @@ def change_password():
 
     # check if it's current user accessing this
     current_user = get_jwt_identity()
-    if not current_user:
-        abort(403, message="Not authorized")
+    if not current_user: 
+        return jsonify({"error": "Not authorized"}), 403
 
     # check if old password is same as provided one
     user_exist = userClass.get_user(current_user)

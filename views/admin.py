@@ -4,7 +4,6 @@ actions
 Admin - Add (user, admin, properties)
         Remove (user, properties)
         Update(properties, User (change user to admin))
-        Delete(Any)
 """
 from views import admin
 
