@@ -3,11 +3,19 @@ a view for `Prtoperty` objects that handles all default REST API
 actions
 """
 
-from flask import request, jsonify
+from flask import request, jsonify, url_for
 from views import property_views
 from models.property import Property
 
 propertyClass = Property()
+
+@property_views.route('/images/<string:filename>', methods=['GET'], strict_slashes=False)
+def get_image(filename):
+    """
+    return property image
+    """
+    image_path = f'~/property_images/{filename}'
+    return send_file(image_path, mimetype='image/jpeg')
 
 @property_views.route('/', methods=['GET'], strict_slashes=False)
 def get_properties():
@@ -21,6 +29,8 @@ def get_properties():
         return jsonify({'error': 'Failed to retreive properties'}), 500
     for property in properties:
         property['_id'] = str(property['_id'])
+        property['image_url'] = 'http://localhost:5000/' + property['_id']
+        print(property['image_url'])
     return jsonify(properties), 200
 
 @property_views.route('/<string:property_id>', methods=['GET'], strict_slashes=False)
@@ -31,5 +41,6 @@ def get_property(property_id):
     property = propertyClass.get_property(property_id)
     if not property:
         return jsonify({})
+    property['_id'] = str(property['_id'])
     return jsonify(property)
 
