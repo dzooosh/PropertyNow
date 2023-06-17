@@ -9,6 +9,6 @@ Admin - Add (user, admin, properties)
 from views import admin
 
 
-@admin.routes('/')
+@admin.route('/')
 def admin_home():
     return "Welcome To Admin Home"

@@ -9,7 +9,6 @@ from auth.auth import Auth
 from views import auth_views
 from models.user import User
 from werkzeug.security import check_password_hash
-from app import mail, jwt
 from flask_jwt_extended import (
     create_access_token,
     get_jwt_identity,

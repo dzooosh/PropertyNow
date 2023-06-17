@@ -35,7 +35,7 @@ app.config['JWT_SECRET_KEY'] = secrets.token_hex(32)
 jwt = JWTManager(app)
 
 
-@auth_views.route('/forgot-password', methods=['POST'], strict_slashes=False)
+@app.route('/forgot-password', methods=['POST'], strict_slashes=False)
 def forgot_password():
     email = request.json.get('email')
 
