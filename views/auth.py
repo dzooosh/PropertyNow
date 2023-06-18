@@ -65,9 +65,10 @@ def login():
     return jsonify(access_token=access_token), 200
 
 
-@auth_views.route('/logout')
+@auth_views.route('/logout', methods=["POST"])
 def logout():
     # handle the logout functionality
+    
     return jsonify({"message": "You have been Logged Out"})
 
 
