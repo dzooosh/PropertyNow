@@ -49,6 +49,7 @@ def signup():
 
 @auth_views.route('/login', methods=['POST'], strict_slashes=False)
 def login():
+    """ Handles the Login Functionality """
     email = request.json.get('email', None)
     password = request.json.get('password', None)
 
@@ -86,7 +87,7 @@ def change_password():
         return jsonify({"error": "Not authorized"}), 403
 
     # check if old password is same as provided one
-    user_exist = userClass.get_user(current_user)
+    user_exist = userClass.get_user(current_user['email'])
     if check_password_hash(user_exist['password'], old_password):
         user_exist['password'] = new_password
         return jsonify({"messge": "Password updated successfully!"}), 200
