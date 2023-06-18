@@ -3,7 +3,7 @@ a view for `Prtoperty` objects that handles all default REST API
 actions
 """
 
-from flask import request, jsonify, url_for, send_file
+from flask import request, jsonify, url_for, send_file, send_from_directory
 from views import property_views
 from models.property import Property
 
@@ -14,24 +14,24 @@ def get_image(filename):
     """
     return property image
     """
-    image_path = f'property_images/{filename}'
-    return send_file(image_path, mimetype='image/png')
+    try:
+        return send_from_directory(property_views.config['UPLOAD_FOLDER'], filename)
+    except FileNotFoundError:
+        return jsonify({'error': 'not found'})
 
 @property_views.route('/', methods=['GET'], strict_slashes=False)
 def get_properties():
     """
     returns a list of properties from the database
     """
-    page = request.args.get('page', default=0, type=int)
+    page = request.args.get('page', default=1, type=int)
     page_size = request.args.get('limit', default=20, type=int)
-    properties = propertyClass.get_properties(page, page_size)
+    properties = propertyClass.get_properties(page - 1, page_size)
     if properties is None:
         return jsonify({'error': 'Failed to retreive properties'}), 500
     for property in properties:
         property['_id'] = str(property['_id'])
-        property['image_url'] = f'http://localhost:5000/properties/images/{property.get("_id")}.png'
-        print(property['image_url'])
-    return jsonify(properties), 200
+    return jsonify(properties)
 
 @property_views.route('/<string:property_id>', methods=['GET'], strict_slashes=False)
 def get_property(property_id):
@@ -40,7 +40,6 @@ def get_property(property_id):
     """
     property = propertyClass.get_property(property_id)
     if not property:
-        return jsonify({})
-    property['_id'] = str(property['_id'])
+        return jsonify({'error': 'not found'}), 404
     return jsonify(property)
 
