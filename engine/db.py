@@ -40,9 +40,68 @@ class Storage:
         return:
             (collection.Collection): collecttion associated with `collection_name`
         """
-        if collection_name != 'users' and collection_name != 'property':
+        if collection_name != 'users' and collection_name != 'property' and collection_name != 'locations':
             return None
         return self.__dbClient[collection_name]
+
+    def _Storage__add_location(self, property_details):
+        """
+        update the locations in the location collection
+        """
+        collection = self._Storage__getCollection('locations')
+        neighborhoods = list(collection.find({'city': property_details.get('city')}))
+        if len(neighborhoods) == 0:
+            collection.insert_one({'city': property_details.get('city'), 'neighborhoods': []})
+        else:
+            neighborhoods = neighborhoods[0]['neighborhoods']
+        print(neighborhoods)
+        for i in range(len(neighborhoods)):
+            if property_details['neighborhood'] in neighborhoods[i]:
+                neighborhoods[i][property_details['neighborhood']] += 1
+                break
+        else:
+            neighborhoods.append({property_details['neighborhood']: 1})
+        print(neighborhoods)
+        result = collection.update_one({'city': property_details['city']}, {'$set': {'neighborhoods': neighborhoods}})
+        return result.acknowledged
+    
+    def _Storage__delete_location(self, property_details):
+        """
+        delete location
+        """
+        collection = self._Storage__getCollection('locations')
+        neighborhoods = list(collection.find({'city': property_details.get('city')}))
+        if len(neighborhoods) == 0:
+            return False
+        else:
+            neighborhoods = neighborhoods[0]['neighborhoods']
+        if len(neighborhoods) == 1:
+            if property_details['neighborhoods'] in neighborhoods[0]:
+                collection.delete_one({'city': property_details.get('city')})
+                return True
+            return False
+        for i in range(len(neighborhoods)):
+            if property_details['neighborhood'] in neighborhoods[i]:
+                if neighborhoods[i][property_details['neighborhood']] == 1:
+                    del neighborhoods[i]
+                else:
+                    neighborhoods[i][property_details['neighborhood']] -= 1
+                break
+        result = collection.update_one({'city': property_details['city']}, {'$set': {'neighborhoods': neighborhoods}})
+        return result.acknowledged
+
+    def get_locations(self):
+        """
+        retreive cities and neighborhoods
+        """
+        collection = self._Storage__getCollection('locations')
+        locations = {}
+        cities = list(collection.find())
+        for city in cities:
+            locations[city['city']] = []
+            for neighborhood in city['neighborhoods']:
+                locations[city['city']].append(list(neighborhood.keys())[0])
+        return locations
 
     def add_user(self, user_credentials: Dict[str, Any]) -> bool:
         """
@@ -137,13 +196,12 @@ class Storage:
         if not property_details or not isinstance(property_details, dict):
             return 
         collection = self._Storage__getCollection('property')
-        try:
-            result = collection.insert_one(property_details)
-            property_id = str(result.inserted_id)
-            self.__cacheClient.put(property_id, self.get_property(property_id))
-            return property_id
-        except Exception:
-            return
+        result = collection.insert_one(property_details)
+        self._Storage__add_location(property_details['location'])
+        property_id = str(result.inserted_id)
+        self.__cacheClient.put(property_id, self.get_property(property_id))
+        return property_id
+    
 
     def get_property(self, property_id: str) -> Dict[str, Any]:
         """
@@ -203,6 +261,8 @@ class Storage:
         if not property_id or type(property_id) is not str:
             return False
         collection = self._Storage__getCollection('property')
+        property = collection.find_one({'_id': ObjectId(property_id)})
+        self._Storage__delete_location(property['location'])
         result = collection.delete_one({'_id': ObjectId(property_id)})
         self.__cacheClient.delete(property_id)
         return result.acknowledged

@@ -39,6 +39,12 @@ class Property:
             return {'error': 'page_size must be >= 0'}
         properties = self.__storage.get_properties(page, page_size)
         return properties
+    
+    def get_locations(self):
+        """
+        retreive cities and neighborhoods
+        """
+        return self.__storage.get_locations()
 
     def add_property(self, property_details: Dict[str, Any]) -> Dict[str, str]:
         """

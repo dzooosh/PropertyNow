@@ -36,7 +36,7 @@ def delete_user(user_id):
         return '', 204
 
 @admin.route('properties/add', methods=['POST'], strict_slashes=False)
-@jwt_required
+@jwt_required()
 def add_properties():
         """
         adds property to the database
@@ -71,3 +71,26 @@ def add_properties():
                 return jsonify(property_id)
         return jsonify({'message': 'property and images sucefully added'})
 
+@admin.route('/properties/<string:property_id>/update', methods=['POST'], strict_slashes=False)
+@jwt_required()
+def update_property(property_id: str):
+        """
+        update property with new details
+        """
+        property_details = request.json
+        result = propertyClass.update_property(property_id, property_details)
+        if 'error' in result.keys():
+               return jsonify(result), 400
+        return jsonify(result)
+
+@admin.route('/properties/<string:property_id>', methods=['DELETE'], strict_slashes=False)
+@jwt_required()
+def delete_property(property_id: str):
+        """
+        delete property with new details
+        """
+        property_details = request.json
+        result = propertyClass.delete_property(property_id, property_details)
+        if not result:
+               return jsonify({'error': 'failed to delete'}), 400
+        return jsonify({'message': 'property deleted'})

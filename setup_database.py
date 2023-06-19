@@ -43,4 +43,13 @@ index3 = IndexModel([("price", 1)])
 
 propertyCollection.create_indexes([index1, index2, index3])
 
+try:
+    locationsCollection = dbClient.create_collection('locations')
+    print('`locations` collection created')
+except CollectionInvalid:
+    print('Collection `locations` already exists')
+    locationsCollection = dbClient['locations']
+
+locationsCollection.create_index('city', unique=True)
+
 client.close()
