@@ -40,7 +40,7 @@ def get_users():
         user['_id'] = str(user['_id'])
     return jsonify(users)
 
-@admin.route('/search/', methods=['GET'], strict_slashes=False)
+@admin.route('/users/search/', methods=['GET'], strict_slashes=False)
 @jwt_required
 def search_for_users():
         """
