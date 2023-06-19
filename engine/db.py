@@ -95,12 +95,16 @@ class Storage:
         retreive cities and neighborhoods
         """
         collection = self._Storage__getCollection('locations')
-        locations = {}
+        locations = []
         cities = list(collection.find())
         for city in cities:
-            locations[city['city']] = []
+            city_location = {}
+            city_location['city'] = city['city']
+            neighborhoods = []
             for neighborhood in city['neighborhoods']:
-                locations[city['city']].append(list(neighborhood.keys())[0])
+                neighborhoods.append(list(neighborhood.keys())[0])
+            city_location['neighborhoods'] = neighborhoods
+            locations.append(city_location)
         return locations
 
     def add_user(self, user_credentials: Dict[str, Any]) -> bool:
