@@ -31,7 +31,8 @@ def get_properties():
         return jsonify({'error': 'Failed to retreive properties'}), 500
     for property in properties:
         property['_id'] = str(property['_id'])
-        property['image_url'] = property['image_url'][0]
+        if property.get('image_url'):
+            property['image_url'] = property['image_url'][0]
     return jsonify(properties)
 
 @property_views.route('/<string:property_id>', methods=['GET'], strict_slashes=False)
@@ -42,7 +43,11 @@ def get_property(property_id):
     property = propertyClass.get_property(property_id)
     if not property:
         return jsonify({'error': 'not found'}), 404
-    property['image_url'] = property['image_url'][1]
+    if property.get('image_url'):
+        if len(property['image_url']) == 2:
+            property['image_url'] = property['image_url'][1]
+        else:
+            property['image_url'] = property['image_url'][0]
     return jsonify(property)
 
 @property_views.route('/locations', methods=['GET'], strict_slashes=False)
