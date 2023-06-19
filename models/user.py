@@ -2,7 +2,7 @@
 `user` module
 """
 from engine import storage
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 
 
 class User():
@@ -61,6 +61,28 @@ class User():
             Optional[Dict[str, Any]]: A dictionary containing the user details if found, None otherwise.
         """
         return self.__storage.get_user(email)
+    
+    def get_users(self, page: int, page_size: int) -> List[Dict[str, Any]]:
+        """
+        retreives users for admin page
+
+        args:
+            page (int): current page
+            page_size (int): page size
+        
+        return:
+            users (list): list of users
+        """
+        if type(page) is not int:
+            return {'error': 'page must be int'}
+        if type(page_size) is not int:
+            return {'error': 'page_size must be int'}
+        if page < 0:
+            return {'error': 'page must be >= 0'}
+        if page_size < 0:
+            return {'error': 'page_size must be >= 0'}
+        users = self.__storage.get_users(page, page_size)
+        return users
 
     def delete_user(self, user_id: str) -> Dict[str, Any]:
         """

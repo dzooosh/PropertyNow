@@ -151,6 +151,27 @@ class Storage:
         else:
             return
         return user
+    
+    def get_users(self, page: int, page_size: int) -> List[Dict[str, Any]]:
+        """
+        retreives users for admin page
+
+        args:
+            page (int): current page
+            page_size (int): page size
+        
+        return:
+            users (list): list of users
+        """
+        if page < 0 or page_size < 0:
+            return
+        collection = self._Storage__getCollection('users')
+        try:
+            users = collection.find().skip(page * page_size).limit(page_size)
+        except Exception:
+            return
+        return list(users)
+    
 
     def delete_user(self, user_id: str) -> bool:
         """

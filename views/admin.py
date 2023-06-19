@@ -13,7 +13,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 import zipfile
 from models.user import User
 from models.property import Property
+from auth.auth import Auth
 
+AUTH = Auth()
 userClass = User()
 propertyClass = Property()
 
@@ -23,17 +25,45 @@ def allowed_file(filename):
 
 # user section
 
-@admin.route('/users/<int:user_id>', methods=['DELETE'],
-             strict_slashes=False)
-def delete_user(user_id):
-    user = userClass.get_user(user_id)
-    if not user:
-        return jsonify(error='Property not found'), 404
+@admin.route('/users/', methods=['GET'], strict_slashes=False)
+@jwt_required
+def get_all_users():
+        """
+        get all users in the database
+        """
+        pass
 
-    del_user = userClass.delete_user(user)
+@admin.route('/search/', methods=['GET'], strict_slashes=False)
+@jwt_required
+def search_for_users():
+        """
+        get all users in the database
+        """
+        query = request.args.get('query')
+
+        if not query:
+                return jsonify({"error": "No search query provided"}), 400
+
+        # Perform the search logic based on the query parameter
+        for user in userClass.get_users():
+                
+
+
+
+# @admin.route('/users/<string:user_id>', methods=['DELETE'],
+#              strict_slashes=False)
+# @jwt_required()
+# def delete_user(user_id):
+#         user = userClass.get_user(user_id)
+#         if not user:
+#                 return jsonify(error='Property not found'), 404
+
+#         del_user = userClass.delete_user(user)
     
-    if 'result' in del_user.keys():
-        return '', 204
+#         if not del_user:
+#                 return jsonify({"message": "User Deleted"}), 204
+#         else:
+#                 return jsonify(error="Failed to delete"), 400
 
 @admin.route('properties/add', methods=['POST'], strict_slashes=False)
 @jwt_required()
@@ -93,4 +123,4 @@ def delete_property(property_id: str):
         result = propertyClass.delete_property(property_id, property_details)
         if not result:
                return jsonify({'error': 'failed to delete'}), 400
-        return jsonify({'message': 'property deleted'})
+        return jsonify({'message': 'property deleted'}), 204
