@@ -69,9 +69,14 @@ def add_properties():
         """
         adds property to the database
         """
-        id = uuid.uuid4()
-        property_details = request.json
-        images = list(request.files.values())
+        id = str(uuid.uuid4())
+        property_details = {}
+        for key, value in request.form.items():
+                if key == 'city' or key == 'neighborhood':
+                       continue
+                property_details[key] = value
+        property_details['location'] = {'city': request.form.get('city'), 'neighborhood': request.form.get('neighborhood')}
+        images = request.files.getlist('images')
         if len(images) == 0:
                 property_id = propertyClass.add_property(property_details)
                 if 'error' in property_id.keys():
@@ -81,8 +86,8 @@ def add_properties():
                 filename = id + '.' + images[0].filename.rsplit('.', 1)[1].lower()
                 images[0].save(os.path.join(admin.config['UPLOAD_FOLDER'], filename))
                 image_urls = [f'http://localhost:5000/properties/images/{filename}']
+        property_details['image_url'] = image_urls
         if len(images) == 1:
-                property_details['image_url'] = image_urls
                 property_id = propertyClass.add_property(property_details)
                 if 'error' in property_id.keys():
                         return jsonify(property_id)
