@@ -32,7 +32,8 @@ def delete_user(user_id):
 
     del_user = userClass.delete_user(user)
     
-    return '', 204
+    if 'result' in del_user.keys():
+        return '', 204
 
 @admin.route('properties/add', methods=['POST'], strict_slashes=False)
 @jwt_required
