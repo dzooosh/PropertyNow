@@ -27,11 +27,18 @@ def allowed_file(filename):
 
 @admin.route('/users/', methods=['GET'], strict_slashes=False)
 @jwt_required
-def get_all_users():
-        """
-        get all users in the database
-        """
-        pass
+def get_users():
+    """
+    returns a list of users from the database
+    """
+    page = request.args.get('page', default=1, type=int)
+    page_size = request.args.get('limit', default=20, type=int)
+    users = userClass.get_users(page - 1, page_size)
+    if users is None:
+        return jsonify({'error': 'Failed to retreive users'}), 500
+    for user in users:
+        user['_id'] = str(user['_id'])
+    return jsonify(users)
 
 @admin.route('/search/', methods=['GET'], strict_slashes=False)
 @jwt_required
@@ -43,27 +50,18 @@ def search_for_users():
 
         if not query:
                 return jsonify({"error": "No search query provided"}), 400
-
+        
+        result = []
         # Perform the search logic based on the query parameter
         for user in userClass.get_users():
-                
-
-
-
-# @admin.route('/users/<string:user_id>', methods=['DELETE'],
-#              strict_slashes=False)
-# @jwt_required()
-# def delete_user(user_id):
-#         user = userClass.get_user(user_id)
-#         if not user:
-#                 return jsonify(error='Property not found'), 404
-
-#         del_user = userClass.delete_user(user)
-    
-#         if not del_user:
-#                 return jsonify({"message": "User Deleted"}), 204
-#         else:
-#                 return jsonify(error="Failed to delete"), 400
+                if query.lower() in user['email'].lower():
+                      result.append(user)
+                if query.lower() in user['first_name'].lower():
+                       result.append(user)
+                if query.lower() in user['last_name'].lower():
+                       result.append(user)
+        
+        return jsonify(result)
 
 @admin.route('properties/add', methods=['POST'], strict_slashes=False)
 @jwt_required()
