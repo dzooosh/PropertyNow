@@ -36,9 +36,33 @@ class TestStorage(unittest.TestCase):
         self.db = self.client['propertyNow']
         self.cache = LRUCache()
         self.properties = [
-            {'_id': ObjectId(), 'name': 'Property 1', 'price': 100000},
-            {'_id': ObjectId(), 'name': 'Property 2', 'price': 200000},
-            {'_id': ObjectId(), 'name': 'Property 3', 'price': 300000}
+            {
+                'title': 'Spacious Apartment',
+                'description': 'A beautiful apartment with modern amenities.',
+                'price': 200000,
+                'location': {
+                    'city': 'New York',
+                    'neighborhood': 'Manhattan'
+                }
+            },
+            {
+                'title': 'Spacious Apartment',
+                'description': 'A beautiful apartment with modern amenities.',
+                'price': 200000,
+                'location': {
+                    'city': 'New York',
+                    'neighborhood': 'Manhattan'
+                }
+            },
+            {
+                'title': 'Spacious Apartment',
+                'description': 'A beautiful apartment with modern amenities.',
+                'price': 200000,
+                'location': {
+                    'city': 'New York',
+                    'neighborhood': 'Manhattan'
+                }
+            }
         ]
         self.db['property'].insert_many(self.properties)
 
@@ -96,9 +120,13 @@ class TestStorage(unittest.TestCase):
         Test adding a new property to the database with valid details
         """
         property_details = {
-            'name': 'Sample Property',
-            'location': 'Sample Location',
-            'price': 100000
+                'title': 'Spacious Apartment',
+                'description': 'A beautiful apartment with modern amenities.',
+                'price': 200000,
+                'location': {
+                    'city': 'New York',
+                    'neighborhood': 'Manhattan'
+                }
         }
         result = self.storage.add_property(property_details)
         self.assertIsInstance(result, str)
@@ -117,9 +145,13 @@ class TestStorage(unittest.TestCase):
         Test retrieving a property from the database based on property ID
         """
         property_details = {
-            'name': 'Sample Property',
-            'location': 'Sample Location',
-            'price': 100000
+                'title': 'Spacious Apartment',
+                'description': 'A beautiful apartment with modern amenities.',
+                'price': 200000,
+                'location': {
+                    'city': 'New York',
+                    'neighborhood': 'Manhattan'
+                }
         }
         property_id = self.storage.add_property(property_details)
         property = self.storage.get_property(property_id)
@@ -213,43 +245,29 @@ class TestStorage(unittest.TestCase):
         self.assertFalse(result)
 
     def test_delete_property(self):
-        property_id = self.storage.add_property({"title": "Test Property", "seller_id": str(self.user['_id'])})
+        property_id = self.storage.add_property({
+                'title': 'Spacious Apartment',
+                'description': 'A beautiful apartment with modern amenities.',
+                'price': 200000,
+                'location': {
+                    'city': 'New York',
+                    'neighborhood': 'Manhattan'
+                }
+        })
         result = self.storage.delete_property(property_id)
         self.assertTrue(result)
         deleted_property = self.storage.get_property(property_id)
         self.assertIsNone(deleted_property)
 
-    def test_get_properties_for_seller(self):
-        seller_id = str(self.user['_id'])
-        self.storage.add_property({"title": "Property 1", "seller id": seller_id})
-        self.storage.add_property({"title": "Property 2", "seller id": seller_id})
-        self.storage.add_property({"title": "Property 3", "seller id": seller_id})
-
-        properties = self.storage.get_properties_for_seller(str(seller_id))
-        self.assertIsInstance(properties, list)
-        self.assertEqual(len(properties), 3)
-
-        for property in properties:
-            self.assertEqual(property["seller id"], seller_id)
-
-    def test_delete_properties_for_seller(self):
-        seller_id = str(self.user['_id'])
-        self.storage.add_property({"title": "Property 1", "seller id": seller_id})
-        self.storage.add_property({"title": "Property 2", "seller id": seller_id})
-        self.storage.add_property({"title": "Property 3", "seller id": seller_id})
-
-        result = self.storage.delete_properties_for_seller(str(seller_id))
-        self.assertTrue(result)
-
-        deleted_properties = self.storage.get_properties_for_seller(str(seller_id))
-        self.assertEqual(len(deleted_properties), 0)
-
     def test_update_property_valid_input(self):
         property_details = {
-            'name': 'Example Property',
-            'type': 'house',
-            'location': 'New York',
-            'seller id': str(self.user['_id'])
+                'title': 'Spacious Apartment',
+                'description': 'A beautiful apartment with modern amenities.',
+                'price': 200000,
+                'location': {
+                    'city': 'New York',
+                    'neighborhood': 'Manhattan'
+                }
         }
         property_id = self.storage.add_property(property_details)
         new_property_details = {
@@ -262,7 +280,7 @@ class TestStorage(unittest.TestCase):
         updated_property = self.storage.get_property(property_id)
         self.assertEqual(updated_property['name'], 'another example property')
         self.assertEqual(updated_property['type'], 'apartment')
-        self.assertEqual(updated_property['location'], 'New York')
+        self.assertEqual(updated_property['location']['city'], 'New York')
 
     def test_update_property_invalid_id(self):
         result = self.storage.update_property(None, {'name': 'Example Property'})

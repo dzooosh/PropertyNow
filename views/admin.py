@@ -7,30 +7,27 @@ Admin - Add (properties)
 """
 from views import admin
 from flask import request, jsonify
-import os
-import uuid
+
+
 from flask_jwt_extended import jwt_required, get_jwt_identity
-import zipfile
+
 from models.user import User
 from models.property import Property
+from models.image import Image
 from auth.auth import Auth
 
 AUTH = Auth()
 userClass = User()
 propertyClass = Property()
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in admin.config['ALLOWED_EXTENSIONS']
+imageClass = Image()
 
 
 # user section
 
 
 @admin.route('/users/', methods=['GET'], strict_slashes=False)
-@jwt_required
-def get_all_users():
+@jwt_required()
+def get_users():
     """
     returns a list of users from the database
     """
@@ -38,16 +35,15 @@ def get_all_users():
     page_size = request.args.get('limit', default=20, type=int)
     users = userClass.get_users(page - 1, page_size)
     if users is None:
-        return jsonify({'error': 'Failed to retreive users'}), 500
-    for user in users:
-        user['_id'] = str(user['_id'])
+        return jsonify({'error': 'Failed to retreive users'}), 401
     return jsonify(users)
 
+
 @admin.route('/users/search/', methods=['GET'], strict_slashes=False)
-@jwt_required
-def search_for_users():
+@jwt_required()
+def search_for_user():
         """
-        get specified users in the database
+        search for specific users in the database
         """
         query = request.args.get('query')
 
@@ -67,6 +63,7 @@ def search_for_users():
         
         return jsonify(result)
 
+
 # Property section
 
 @admin.route('/properties/add', methods=['POST'], strict_slashes=False)
@@ -75,7 +72,6 @@ def add_properties():
         """
         adds property to the database
         """
-        id = str(uuid.uuid4())
         property_details = {}
         for key, value in request.form.items():
                 if key == 'city' or key == 'neighborhood':
@@ -83,28 +79,7 @@ def add_properties():
                 property_details[key] = value
         property_details['location'] = {'city': request.form.get('city'), 'neighborhood': request.form.get('neighborhood')}
         images = request.files.getlist('images')
-        if len(images) == 0:
-                property_id = propertyClass.add_property(property_details)
-                if 'error' in property_id.keys():
-                        return jsonify(property_id)
-                return jsonify({'message': 'property added'})
-        if images[0] and allowed_file(images[0].filename):
-                filename = id + '.' + images[0].filename.rsplit('.', 1)[1].lower()
-                images[0].save(os.path.join(admin.config['UPLOAD_FOLDER'], filename))
-                image_urls = [f'http://localhost:5000/properties/images/{filename}']
-        property_details['image_url'] = image_urls
-        if len(images) == 1:
-                property_id = propertyClass.add_property(property_details)
-                if 'error' in property_id.keys():
-                        return jsonify(property_id)
-                return jsonify({'message': 'property and image sucefully added'})
-        zip_path = os.path.join(admin.config['UPLOAD_FOLDER'], f'{id}.zip')
-        with zipfile.ZipFile(zip_path, 'w') as zip_file:
-                for image in images:
-                        if image.filename != '' and allowed_file(image.filename):
-                                file_data = image.read()
-                                zip_file.writestr(image.filename, file_data)
-        property_details['image_url'].append(f'http://localhost:5000/properties/images/{id}.zip')
+        property_details['image_url'] = imageClass.add_images(admin.config['UPLOAD_FOLDER'], admin.config['ALLOWED_EXTENSIONS'], images)
         property_id = propertyClass.add_property(property_details)
         if 'error' in property_id.keys():
                 return jsonify(property_id)
