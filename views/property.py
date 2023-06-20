@@ -27,12 +27,8 @@ def get_properties():
     page = request.args.get('page', default=1, type=int)
     page_size = request.args.get('limit', default=20, type=int)
     properties = propertyClass.get_properties(page - 1, page_size)
-    if properties is None:
-        return jsonify({'error': 'Failed to retreive properties'}), 500
-    for property in properties:
-        property['_id'] = str(property['_id'])
-        if property.get('image_url'):
-            property['image_url'] = property['image_url'][0]
+    if type(properties) is dict:
+        return jsonify(properties), 401
     return jsonify(properties)
 
 @property_views.route('/<string:property_id>', methods=['GET'], strict_slashes=False)

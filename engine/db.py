@@ -7,6 +7,7 @@ from pymongo import MongoClient, collection
 from engine.redis import LRUCache
 from bson import ObjectId
 from typing import Dict, Any, List
+import uuid
 from os import environ
 
 
@@ -54,14 +55,12 @@ class Storage:
             collection.insert_one({'city': property_details.get('city'), 'neighborhoods': []})
         else:
             neighborhoods = neighborhoods[0]['neighborhoods']
-        print(neighborhoods)
         for i in range(len(neighborhoods)):
             if property_details['neighborhood'] in neighborhoods[i]:
                 neighborhoods[i][property_details['neighborhood']] += 1
                 break
         else:
             neighborhoods.append({property_details['neighborhood']: 1})
-        print(neighborhoods)
         result = collection.update_one({'city': property_details['city']}, {'$set': {'neighborhoods': neighborhoods}})
         return result.acknowledged
     
@@ -76,7 +75,7 @@ class Storage:
         else:
             neighborhoods = neighborhoods[0]['neighborhoods']
         if len(neighborhoods) == 1:
-            if property_details['neighborhoods'] in neighborhoods[0]:
+            if property_details['neighborhood'] in neighborhoods[0]:
                 collection.delete_one({'city': property_details.get('city')})
                 return True
             return False
@@ -119,6 +118,8 @@ class Storage:
         """
         if user_credentials is None or not isinstance(user_credentials, dict):
             return False
+        user_id = uuid.uuid4()
+        user_credentials['_id'] = str(user_id)
         collection = self._Storage__getCollection('users')
         try:
             result = collection.insert_one(user_credentials)
@@ -145,7 +146,7 @@ class Storage:
             if type(user_id) is not str:
                 return
             try:
-                user = collection.find_one({ '_id': ObjectId(user_id) })
+                user = collection.find_one({ '_id': user_id })
             except Exception:
                 return
         else:
@@ -186,7 +187,7 @@ class Storage:
         if not user_id or type(user_id) is not str:
             return False
         collection = self._Storage__getCollection('users')
-        result = collection.delete_one({ '_id': ObjectId(user_id) })
+        result = collection.delete_one({ '_id': user_id })
         return result.acknowledged
     
     def update_user(self, user_id: str, user_details: Dict[str, Any]) -> bool:
@@ -205,7 +206,7 @@ class Storage:
         if user_details is None or not isinstance(user_details, dict):
             return False
         collection = self._Storage__getCollection('users')
-        result = collection.update_one({'_id': ObjectId(user_id)}, {'$set': user_details})
+        result = collection.update_one({'_id': user_id}, {'$set': user_details})
         return result.acknowledged
 
     def add_property(self, property_details: Dict[str, Any]) -> str:
@@ -221,6 +222,7 @@ class Storage:
         if not property_details or not isinstance(property_details, dict):
             return 
         collection = self._Storage__getCollection('property')
+        property_details['_id'] = str(uuid.uuid4())
         result = collection.insert_one(property_details)
         self._Storage__add_location(property_details['location'])
         property_id = str(result.inserted_id)
@@ -244,13 +246,12 @@ class Storage:
         if not property:
             collection = self._Storage__getCollection('property')
             try:
-                object_id = ObjectId(property_id)
+                object_id = property_id
             except Exception:
                 return
             property = collection.find_one({ '_id': object_id })
             if property:
-                property['_id'] = str(property['_id'])
-            self.__cacheClient.put(property_id, property)
+                self.__cacheClient.put(property_id, property)
         return property
 
     def get_properties(self, page: int, page_size: int) -> List[Dict[str, Any]]:
@@ -268,10 +269,19 @@ class Storage:
             return
         collection = self._Storage__getCollection('property')
         try:
-            properties = collection.find().skip(page * page_size).limit(page_size)
-        except Exception:
-            return
-        return list(properties)
+            pipeline = [
+                {"$skip": page * page_size},
+                {"$limit": page_size},
+                {
+                    "$addFields": {
+                        "image_url": {"$cond": {"if": {"$isArray": "$image_url"}, "then": {"$arrayElemAt": ["$image_url", 0]}, "else": "$image_url"}}
+                    }
+                }
+            ]
+            properties = collection.aggregate(pipeline)
+            return list(properties)
+        except Exception as e:
+            return {'error': 'failed to retreive'}
     
     def delete_property(self, property_id: str) -> bool:
         """
@@ -286,42 +296,10 @@ class Storage:
         if not property_id or type(property_id) is not str:
             return False
         collection = self._Storage__getCollection('property')
-        property = collection.find_one({'_id': ObjectId(property_id)})
+        property = collection.find_one({'_id': property_id})
         self._Storage__delete_location(property['location'])
-        result = collection.delete_one({'_id': ObjectId(property_id)})
+        result = collection.delete_one({'_id': property_id})
         self.__cacheClient.delete(property_id)
-        return result.acknowledged
-
-    def get_properties_for_seller(self, seller_id: str) -> List[Dict[str, Any]]:
-        """
-        returns all of the properties linked to a seller
-
-        args:
-            seller_id (str): user id for all of the properties to be deleted
-        
-        return:
-            (list): list of all properties linked to a user
-        """
-        if not seller_id or type(seller_id) is not str:
-            return []
-        collection = self._Storage__getCollection('property')
-        properties = collection.find({'seller id': seller_id})
-        return list(properties)
-
-    def delete_properties_for_seller(self, seller_id: str) -> bool:
-        """
-        deletes all properties related to a specific seller
-
-        args:
-            seller_id (str): user id for all of the properties to be deleted
-        
-        return:
-            (bool): result of the operation
-        """
-        if not seller_id or type(seller_id) is not str:
-            return False
-        collection = self._Storage__getCollection('property')
-        result = collection.delete_many({'seller id': seller_id})
         return result.acknowledged
 
     def update_property(self, property_id: str, property_details: Dict[str, Any]) -> bool:
@@ -340,10 +318,9 @@ class Storage:
         if not property_details or type(property_details) is not dict:
             return False
         collection = self._Storage__getCollection('property')
-        result = collection.update_one({'_id': ObjectId(property_id)}, {'$set': property_details})
-        property = collection.find_one({'_id': ObjectId(property_id)})
+        result = collection.update_one({'_id': property_id}, {'$set': property_details})
+        property = collection.find_one({'_id': property_id})
         if property:
-            property['_id'] = str(property['_id'])
             self.__cacheClient.update(property_id, property)
         return result.acknowledged
 

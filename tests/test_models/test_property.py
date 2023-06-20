@@ -27,7 +27,6 @@ class TestProperty(unittest.TestCase):
         user_emails = [
             'test@example.com',
         ]
-        cls.__storage.delete_properties_for_seller(str(cls.user['_id']))
         for email in user_emails:
             user_id = str(cls.__storage.get_user(email)['_id'])
             cls.__storage.delete_user(user_id)
@@ -56,28 +55,13 @@ class TestProperty(unittest.TestCase):
             'price': 200000
         }
         result = self.property.add_property(property_details)
-        self.assertEqual(result, {'error': 'Missing seller id, location'})
-
-    def test_add_property_invalid_seller(self):
-        property_details = {
-            'title': 'Spacious Apartment',
-            'description': 'A beautiful apartment with modern amenities.',
-            'price': 200000,
-            'seller id': '123456789012',
-            'location': {
-                'city': 'New York',
-                'neighborhood': 'Manhattan'
-            }
-        }
-        result = self.property.add_property(property_details)
-        self.assertEqual(result, {'error': "seller doesn't exist"})
+        self.assertEqual(result, {'error': 'Missing location'})
 
     def test_get_property(self):
         property_details = {
             'title': 'Spacious Apartment',
             'description': 'A beautiful apartment with modern amenities.',
             'price': 200000,
-            'seller id': str(self.user['_id']),
             'location': {
                 'city': 'New York',
                 'neighborhood': 'Manhattan'
@@ -95,7 +79,6 @@ class TestProperty(unittest.TestCase):
             'title': 'Spacious Apartment',
             'description': 'A beautiful apartment with modern amenities.',
             'price': 200000,
-            'seller id': str(self.user['_id']),
             'location': {
                 'city': 'New York',
                 'neighborhood': 'Manhattan'
@@ -106,24 +89,6 @@ class TestProperty(unittest.TestCase):
         self.assertIsInstance(result, bool)
         self.assertTrue(result)
 
-    def test_get_properties_for_seller(self):
-        seller_id = str(self.user['_id'])
-        property_details = {
-            'title': 'Spacious Apartment',
-            'description': 'A beautiful apartment with modern amenities.',
-            'price': 200000,
-            'seller id': seller_id,
-            'location': {
-                'city': 'New York',
-                'neighborhood': 'Manhattan'
-            }
-        }
-        self.property.add_property(property_details)
-        result = self.property.get_properties_for_seller(seller_id)
-        self.assertIsInstance(result, list)
-        self.assertEqual(len(result), 2)
-        for property in result:
-            self.assertEqual(property["seller id"], seller_id)
 
 
 if __name__ == "__main__":

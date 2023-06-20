@@ -108,18 +108,6 @@ class Property:
         """
         return self.__storage.delete_property(property_id)
 
-    def get_properties_for_seller(self, seller_id: str) -> List[Dict[str, Any]]:
-        """
-        returns all of the properties linked to a seller
-
-        args:
-            seller_id (str): user id for all of the properties to be deleted
-        
-        return:
-            (list): list of all properties linked to a user
-        """
-        return self.__storage.get_properties_for_seller(seller_id)
-
     def update_property(self, property_id: str, property_details: Dict[str, Any]) -> Dict[str, str]:
         """
         updates property
