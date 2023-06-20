@@ -1,8 +1,8 @@
 from flask import Blueprint
 
 property_views = Blueprint("property_views", __name__)
-admin = Blueprint("admin", __name__, url_prefix="/admin")
-auth_views = Blueprint("auth_views", __name__, url_prefix="/auth")
+admin = Blueprint("admin", __name__)
+auth_views = Blueprint("auth_views", __name__)
 
 image_configuration = {
     'UPLOAD_FOLDER': './property_images',

@@ -1,8 +1,8 @@
 """
 a view for `admin` that handles all admins REST API
 actions
-Admin - Add (user, admin, properties)
-        Remove (user, properties)
+Admin - Add (properties)
+        Remove (properties)
         Update(properties, User (change user to admin))
 """
 from views import admin
@@ -19,15 +19,18 @@ AUTH = Auth()
 userClass = User()
 propertyClass = Property()
 
+
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in admin.config['ALLOWED_EXTENSIONS']
 
+
 # user section
+
 
 @admin.route('/users/', methods=['GET'], strict_slashes=False)
 @jwt_required
-def get_users():
+def get_all_users():
     """
     returns a list of users from the database
     """
@@ -44,7 +47,7 @@ def get_users():
 @jwt_required
 def search_for_users():
         """
-        get all users in the database
+        get specified users in the database
         """
         query = request.args.get('query')
 
@@ -53,17 +56,20 @@ def search_for_users():
         
         result = []
         # Perform the search logic based on the query parameter
+        query = query.lower()
         for user in userClass.get_users():
-                if query.lower() in user['email'].lower():
+                if query in user['email'].lower():
                       result.append(user)
-                if query.lower() in user['first_name'].lower():
+                if query in user['first_name'].lower():
                        result.append(user)
-                if query.lower() in user['last_name'].lower():
+                if query in user['last_name'].lower():
                        result.append(user)
         
         return jsonify(result)
 
-@admin.route('properties/add', methods=['POST'], strict_slashes=False)
+# Property section
+
+@admin.route('/properties/add', methods=['POST'], strict_slashes=False)
 @jwt_required()
 def add_properties():
         """
@@ -127,3 +133,27 @@ def delete_property(property_id: str):
         if not result:
                return jsonify({'error': 'failed to delete'}), 400
         return jsonify({'message': 'property deleted'}), 204
+
+@admin.route('/properties/search', methods=['GET'], strict_slashes=False)
+@jwt_required
+def search_for_properties():
+        """
+        get specified properties in the database
+        """
+        query = request.args.get('query')
+
+        if not query:
+                return jsonify({"error": "No search query provided"}), 400
+        
+        result = []
+        # Perform the search logic based on the query parameter
+        query = query.lower()
+        for props in propertyClass.get_users():
+                if query in props['city'].lower():
+                      result.append(props)
+                if query in props['location'].lower():
+                       result.append(props)
+                if query in props['price'].lower():
+                        result.append(props)
+        
+        return jsonify(result)

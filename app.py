@@ -62,50 +62,47 @@ def forgot_password():
 
 @app.route('/user/profile', methods=['GET', 'POST'], strict_slashes=False)
 @jwt_required()
-def profile():
+def user_profile():
     # Retrieve the user from the database
     current_user = get_jwt_identity()
     user = userClass.get_user(current_user['email'])
+
+    if not user:
+        return jsonify({'error': 'Unauthorized'}), 401
 
     if request.method == 'POST':
         # Retrieve the submitted form data
         new_firstname = request.form.get('first_name')
         new_lastname = request.form.get('last_name')
         new_email = request.form.get('email')
+        
+        # Update the user data with the submitted changes
+        updated_data = {}
+        if new_firstname:
+            updated_data['first_name'] = new_firstname
+        if new_lastname:
+            updated_data['last_name'] = new_lastname
+        if new_email:
+            updated_data['email'] = new_email
+        
+        expected_fields = ['email', 'first_name', 'last_name']
 
-        if user:
-            # Update the user data with the submitted changes
-            updated_data = {}
-            if new_firstname:
-                updated_data['first_name'] = new_firstname
-            if new_lastname:
-                updated_data['last_name'] = new_lastname
-            if new_email:
-                updated_data['email'] = new_email
-            
-            expected_fields = ['email', 'first_name', 'last_name']
+        # check if no other field is being changed
+        for field in request.form:
+            if field not in expected_fields:
+                return jsonify({"error": 
+                                "Invalid field: {}".format(field)}), 403
 
-            # check if no other field is being changed
-            for field in request.form:
-                if field not in expected_fields:
-                    return jsonify({"error": 
-                                    "Invalid field: {}".format(field)}), 403
-
-            # Update the user in the database
-            if userClass.update_user(user['_id'], updated_data):
-                return jsonify({'success': 'Profile updated successfully.'})
-            else:
-                return jsonify({"error": "Failed to update profile. Please try again."})
+        # Update the user in the database
+        if userClass.update_user(user['_id'], updated_data):
+            return jsonify({'success': 'Profile updated successfully.'})
         else:
-            return jsonify({'error': 'User not found.'}), 404
+            return jsonify({"error": "Failed to update profile. Please try again."})
 
-    # if the request is `GET`
-    if user:
+    if request.methods == 'GET':
         user['_id'] = str(user['_id'])
-        return jsonify(user), 200
-    else:
-        return jsonify({'error':'No such User'}), 404
-
+        return jsonify(user)
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
