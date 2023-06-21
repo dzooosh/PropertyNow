@@ -40,14 +40,15 @@ class Auth:
         self.lru = LRUCache()
 
     def signup_user(self, email: str,
-                    password: str, **kwargs) -> Dict[User, Any]:
+                    password: str, **kwargs):
         """ registers user by adding to the database or checking
         if already exists
         Args:
             email (str): email string arguments
             password(str): password
+            kwargs: dict containing other required fields
         Return:
-            User (user object)
+            return json from user model
         """
         # check if user is present in the db
         user = self.user.get_user(email=email)
@@ -116,11 +117,10 @@ class Auth:
             email (str): reset password token
             password (str): new password to be updated
         Return:
-            None
+            True if successful or false if not 
         """
         user = self.user.get_user(email=email)
         if not user:
             raise ValueError()
         pswd = _encode_password(password)
-        self.user.update_user(str(user.get('_id')), {'password': pswd})
-        return
+        return self.user.update_user(str(user['_id']), {'password': pswd})
