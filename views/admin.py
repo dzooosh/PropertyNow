@@ -34,8 +34,8 @@ def get_users():
     page = request.args.get('page', default=1, type=int)
     page_size = request.args.get('limit', default=20, type=int)
     users = userClass.get_users(page - 1, page_size)
-    if users is None:
-        return jsonify({'error': 'Failed to retreive users'}), 401
+    if type(users) is dict:
+        return jsonify(users), 401
     return jsonify(users)
 
 
