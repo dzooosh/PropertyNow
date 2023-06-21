@@ -16,6 +16,7 @@ class TestAuth(unittest.TestCase):
     def tearDownClass(cls):
         user_emails = [
             'test@example.com',
+            'test2@example.com'
         ]
         for email in user_emails:
             user_id = str(cls.user.get_user(email)['_id'])
