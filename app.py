@@ -70,7 +70,7 @@ def user_profile():
     if not user:
         return jsonify({'error': 'Unauthorized'}), 401
 
-    if request.method == 'POST':
+    if request.methods == 'POST':
         # Retrieve the submitted form data
         new_firstname = request.form.get('first_name')
         new_lastname = request.form.get('last_name')
