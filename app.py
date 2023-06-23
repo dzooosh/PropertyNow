@@ -70,36 +70,20 @@ def user_profile():
     if not user:
         return jsonify({'error': 'Unauthorized'}), 401
 
-    if request.methods == 'POST':
-        # Retrieve the submitted form data
-        new_firstname = request.form.get('first_name')
-        new_lastname = request.form.get('last_name')
-        new_email = request.form.get('email')
-        
-        # Update the user data with the submitted changes
-        updated_data = {}
-        if new_firstname:
-            updated_data['first_name'] = new_firstname
-        if new_lastname:
-            updated_data['last_name'] = new_lastname
-        if new_email:
-            updated_data['email'] = new_email
-        
+    if request.method == 'POST':
         expected_fields = ['email', 'first_name', 'last_name']
-
-        # check if no other field is being changed
-        for field in request.form:
-            if field not in expected_fields:
-                return jsonify({"error": 
-                                "Invalid field: {}".format(field)}), 403
-
-        # Update the user in the database
-        if userClass.update_user(user['_id'], updated_data):
+        updated_data = {}
+        for key, value in request.json.items():
+            if key not in expected_fields:
+                continue
+            updated_data[key] = value
+        result = userClass.update_user(user['_id'], updated_data)
+        if result:
             return jsonify({'success': 'Profile updated successfully.'})
         else:
             return jsonify({"error": "Failed to update profile. Please try again."})
 
-    if request.methods == 'GET':
+    if request.method == 'GET':
         user['_id'] = str(user['_id'])
         return jsonify(user)
     
