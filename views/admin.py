@@ -83,7 +83,9 @@ def add_properties():
         property_id = propertyClass.add_property(property_details)
         if 'error' in property_id.keys():
                 return jsonify(property_id)
-        return jsonify({'message': 'property and images sucefully added'})
+        property = propertyClass.get_property(property_id.get('property id'))
+        result = {'message': 'property and images sucefully added', 'property': property}
+        return jsonify(result)
 
 @admin.route('/properties/<string:property_id>/update', methods=['POST'], strict_slashes=False)
 @jwt_required()
@@ -91,7 +93,7 @@ def update_property(property_id: str):
         """
         update property with new details
         """
-        property_details = request.json
+        property_details = request.form
         result = propertyClass.update_property(property_id, property_details)
         if 'error' in result.keys():
                return jsonify(result), 400
@@ -101,10 +103,9 @@ def update_property(property_id: str):
 @jwt_required()
 def delete_property(property_id: str):
         """
-        delete property with new details
+        delete property
         """
-        property_details = request.json
-        result = propertyClass.delete_property(property_id, property_details)
+        result = propertyClass.delete_property(property_id)
         if not result:
                return jsonify({'error': 'failed to delete'}), 400
         return jsonify({'message': 'property deleted'}), 204
