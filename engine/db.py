@@ -269,18 +269,9 @@ class Storage:
             return
         collection = self._Storage__getCollection('property')
         try:
-            pipeline = [
-                {"$skip": page * page_size},
-                {"$limit": page_size},
-                {
-                    "$addFields": {
-                        "image_url": {"$cond": {"if": {"$isArray": "$image_url"}, "then": {"$arrayElemAt": ["$image_url", 0]}, "else": "$image_url"}}
-                    }
-                }
-            ]
-            properties = collection.aggregate(pipeline)
+            properties = collection.find().skip(page * page_size).limit(page_size)
             return list(properties)
-        except Exception as e:
+        except Exception:
             return {'error': 'failed to retreive'}
     
     def delete_property(self, property_id: str) -> bool:

@@ -39,11 +39,6 @@ def get_property(property_id):
     property = propertyClass.get_property(property_id)
     if not property:
         return jsonify({'error': 'not found'}), 404
-    if property.get('image_url'):
-        if len(property['image_url']) == 2:
-            property['image_url'] = property['image_url'][1]
-        else:
-            property['image_url'] = property['image_url'][0]
     return jsonify(property)
 
 @property_views.route('/locations', methods=['GET'], strict_slashes=False)
