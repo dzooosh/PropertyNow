@@ -56,11 +56,11 @@ def login():
     if not AUTH.validate_login(email, password):
         return jsonify({"message": "Invalid email or password"}), 401
 
-    user = {
+    payload = {
         "email": email,
         "account_type": userClass.get_user(email)['account_type']
     }
-    access_token = create_access_token(identity=user)
+    access_token = create_access_token(identity=payload)
 
     return jsonify(access_token=access_token), 200
 
