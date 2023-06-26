@@ -2,7 +2,23 @@
 
 PropertyNow is a web application that helps people get the property of their choices and can filter based on their budget and location
 
-# PropertyNow FrontEnd
+# Backend Setup
+
+Installing the required and used packages/dependencies. Run
+
+`pip install -r requirements.txt`
+
+In the project directory, you can run:
+
+`python app.py`
+
+Runs the app in the development mode
+
+The backend runs on `port 5000` for the front end to call from.
+
+> This possible by using the Cross-Origin Resource Sharing (CORS)
+
+# Frontend Setup
 
 https://github.com/Benterf123/propertynow-frontend
 
@@ -44,24 +60,3 @@ Successes in building the sites was creating platforms for both the buyers and a
 Areas for improvement include better user interface to create a more attractive display for the user/buyer. Also making the site easier by accessing the location automatically, allowing for social logins which makes it easier to sign up and access on a go.
 
 Lessons learned include the sign up/login logic, API implementation, Blueprints, Authentication using JWT.
-
-
-# Backend Setup
-
-Installing the required and used packages/dependencies. Run
-
-`pip install -r requirements.txt`
-
-In the project directory, you can run:
-
-`python app.py`
-
-Runs the app in the development mode
-
-The backend runs on `port 5000` for the front end to call from.
-
-> This possible by using the Cross-Origin Resource Sharing (CORS)
-
-# Frontend Setup
-
-https://github.com/Benterf123/propertynow-frontend
