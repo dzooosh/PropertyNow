@@ -68,81 +68,29 @@ def forgot_password():
 @app.route('/user/profile', methods=['GET', 'POST'], strict_slashes=False)
 @jwt_required()
 def user_profile():
-    if request.method == 'POST':
-        # Retrieve the user from the database
-        current_user = get_jwt_identity()
-        user = userClass.get_user(current_user['email'])
-        user_id = str(userClass.get_user(user['email'])['_id'])
-        
-        if not user:
-            return jsonify({'error': 'Unauthorized'}), 401
-    
-        # Retrieve the submitted form data
-        new_firstname = request.json.get('first_name')
-        new_lastname = request.json.get('last_name')
-        new_email = request.json.get('email')
-
-        updated = {
-            'first_name': new_firstname,
-            'last_name': new_lastname,
-            'email': new_email
-        }
-
-        userClass.update_user(user['_id'], updated)
-        
-        new_user = userClass.get_user(new_email)
-        new_user['_id'] = str(userClass.get_user(new_email)['_id'])
-        print(new_user)
-        return jsonify(new_user)
-        
-        #return jsonify({"error": "Failed to update profile. Please try again."})
-        # # Update the user data with the submitted changes
-        # updated_data = {}
-        # if new_firstname != user['first_name']:
-        #     updated_data['first_name'] = new_firstname
-        # if new_lastname != user['last_name']:
-        #     updated_data['last_name'] = new_lastname
-        # if new_email != user['email']:
-        #     updated_data['email'] = new_email
-        
-        # expected_fields = ['email', 'first_name', 'last_name']
-
-        # # check if no other field is being changed
-        # for field in request.form.keys():
-        #     if field not in expected_fields:
-        #         return jsonify({"error": 
-        #                         "Invalid field: {}".format(field)}), 403
-
-        # # if nothing is updated do nothing
-        # if updated_data == {}:
-        #     return (user)
-        
-        # # Update the user in the database
-        # if userClass.update_user(user_id, updated_data):
-        #     # if new email generate new access token
-        #     print(updated_data)
-        #     if updated_data.get('email'):
-        #         print(updated_data.get('email'))
-        #         new_user = userClass.get_user(updated_data.get('email'))
-        #         new_user['_id'] = str(new_user['_id'])
-        #         payload = {
-        #             "email": new_email,
-        #             "account_type": userClass.get_user(updated_data.get('email'))['account_type']
-        #         }
-        #         access_token = create_access_token(identity=payload)
-        #         return jsonify({
-        #             "user": new_user,
-        #             "access_token": access_token
-        #             })
-        #     # if not new email return the updated user
-
-    # Retrieve the user from the database
+     # Retrieve the user from the database
     current_user = get_jwt_identity()
     user = userClass.get_user(current_user['email'])
 
-    user['_id'] = str(user['_id'])
-    return jsonify(user)
-    
+    if not user:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    if request.method == 'POST':
+        expected_fields = ['email', 'first_name', 'last_name']
+        updated_data = {}
+        for key, value in request.json.items():
+            if key not in expected_fields:
+                continue
+            updated_data[key] = value
+        result = userClass.update_user(user['_id'], updated_data)
+        if result:
+            return jsonify({'success': 'Profile updated successfully.'})
+        else:
+            return jsonify({"error": "Failed to update profile. Please try again."})
+
+    if request.method == 'GET':
+        user['_id'] = str(user['_id'])
+        return jsonify(user)
 
 if __name__ == '__main__':
     app.run(debug=True)

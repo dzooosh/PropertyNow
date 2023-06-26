@@ -23,17 +23,10 @@ class Image:
         image_urls = []
         if len(images) == 0:
             return image_urls
-        if images[0] and self.__allowed_file(images[0].filename, ALLOWED_EXTENSIONS):
-                filename = id + '.' + images[0].filename.rsplit('.', 1)[1].lower()
-                images[0].save(os.path.join(destination_folder, filename))
-                image_urls.append(f'http://localhost:5000/properties/images/{filename}')
-        if len(images) == 1:
-             return image_urls
-        zip_path = os.path.join(destination_folder, f'{id}.zip')
-        with zipfile.ZipFile(zip_path, 'w') as zip_file:
-                for image in images:
-                        if image.filename != '' and self.__allowed_file(image.filename, ALLOWED_EXTENSIONS):
-                                file_data = image.read()
-                                zip_file.writestr(image.filename, file_data)
-        image_urls.append(f'http://localhost:5000/properties/images/{id}.zip')
+        for image in images:
+            if self.__allowed_file(image.filename, ALLOWED_EXTENSIONS):
+                    id = str(uuid.uuid4())
+                    filename = id + '.' + image.filename.rsplit('.', 1)[1].lower()
+                    image.save(os.path.join(destination_folder, filename))
+                    image_urls.append(f'http://localhost:5000/properties/images/{filename}')
         return image_urls
