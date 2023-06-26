@@ -55,6 +55,19 @@ def get_users():
         return jsonify(users)
 
 
+@admin.route('/users/<string:user_id>/update', methods=['POST'],
+             strict_slashes=False)
+@jwt_required()
+def update_users(user_id: str):
+        """
+        update property with new details
+        """
+        user_details = request.form
+        result = userClass.update_user(user_id, user_details)
+        if 'error' in result.keys():
+               return jsonify(result), 400
+        return jsonify(result)
+
 
 # Property section
 
