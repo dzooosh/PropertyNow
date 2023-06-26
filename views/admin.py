@@ -44,7 +44,12 @@ def get_users():
                         if query in user['email'].lower():
                                 user['_id'] = str(user['_id'])
                                 result.append(user)
-                        
+                        if query in user['last_name'].lower():
+                                user['_id'] = str(user['_id'])
+                                result.append(user)
+                        if query in user['first_name'].lower():
+                                user['_id'] = str(user['_id'])
+                                result.append(user) 
                 return jsonify(result)
 
         users = userClass.get_users(page - 1, page_size)
