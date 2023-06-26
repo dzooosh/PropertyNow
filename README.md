@@ -11,7 +11,9 @@ https://github.com/Benterf123/propertynow-frontend
 # Team Members
 
 Alonge Joshua: Backend
+
 Sifiso Sithole: Backend
+
 Oladimeji Idrees: Backend
 
 Faith Benter: Frontend
