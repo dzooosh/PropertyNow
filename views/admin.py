@@ -28,40 +28,32 @@ imageClass = Image()
 @admin.route('/users/', methods=['GET'], strict_slashes=False)
 @jwt_required()
 def get_users():
-    """
-    returns a list of users from the database
-    """
-    page = request.args.get('page', default=1, type=int)
-    page_size = request.args.get('limit', default=20, type=int)
-    users = userClass.get_users(page - 1, page_size)
-    if type(users) is dict:
-        return jsonify(users), 401
-    return jsonify(users)
-
-
-@admin.route('/users/search/', methods=['GET'], strict_slashes=False)
-@jwt_required()
-def search_for_user():
         """
-        search for specific users in the database
+        displays all users and
+        search for specific user email in the database
         """
-        query = request.args.get('query')
+        query = request.args.get('user')
+        page = request.args.get('page', default=1, type=int)
+        page_size = request.args.get('limit', default=20, type=int)
 
-        if not query:
-                return jsonify({"error": "No search query provided"}), 400
-        
-        result = []
-        # Perform the search logic based on the query parameter
-        query = query.lower()
-        for user in userClass.get_users():
-                if query in user['email'].lower():
-                      result.append(user)
-                if query in user['first_name'].lower():
-                       result.append(user)
-                if query in user['last_name'].lower():
-                       result.append(user)
-        
-        return jsonify(result)
+        if query is not None:
+                result = []
+                # Perform the search logic based on the query parameter
+                query = query.lower()
+                for user in userClass.get_users(page -1, page_size):
+                        if query in user['email'].lower():
+                                user['_id'] = str(user['_id'])
+                                result.append(user)
+                        
+                return jsonify(result)
+
+        users = userClass.get_users(page - 1, page_size)
+        for user in users:
+                user['_id'] = str(user['_id'])
+        if type(users) is dict:
+                return jsonify(users), 401
+        return jsonify(users)
+
 
 
 # Property section
@@ -132,4 +124,5 @@ def search_for_properties():
                 if query in props['price'].lower():
                         result.append(props)
         
+
         return jsonify(result)
