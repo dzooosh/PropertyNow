@@ -71,10 +71,10 @@ def update_user(user_id: str):
         user_details = {}
         user_details['account_type'] = account
         result = userClass.update_user(user_id, user_details)
-        # if result:
-        #         return jsonify({"message": "update successful"})
-        # else:
-        #         return jsonify({"error": "update failed! Try again"}), 400
+        if result:
+                return jsonify({"message": "update successful"})
+        else:
+                return jsonify({"error": "update failed! Try again"}), 400
 
 
 # Property section
