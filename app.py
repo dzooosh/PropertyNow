@@ -65,32 +65,37 @@ def forgot_password():
     else:
         return jsonify({"error": "The email does not exist"}), 404
 
-@app.route('/user/profile', methods=['GET', 'POST'], strict_slashes=False)
+@app.route('/user/profile', methods=['GET'], strict_slashes=False)
 @jwt_required()
 def user_profile():
-     # Retrieve the user from the database
+    # Retrieve the user from the database
     current_user = get_jwt_identity()
     user = userClass.get_user(current_user['email'])
 
-    if not user:
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    if request.method == 'POST':
-        expected_fields = ['email', 'first_name', 'last_name']
-        updated_data = {}
-        for key, value in request.json.items():
-            if key not in expected_fields:
-                continue
-            updated_data[key] = value
-        result = userClass.update_user(user['_id'], updated_data)
-        if result:
-            return jsonify({'success': 'Profile updated successfully.'})
-        else:
-            return jsonify({"error": "Failed to update profile. Please try again."})
-
-    if request.method == 'GET':
+    user['_id'] = str(user['_id'])
+    return jsonify(user)
+    
+@app.route('/user/profile', methods=['POST'], strict_slashes=False)
+def update_profile():
+    """ Updates profile
+    """
+    expected_fields = ['email', 'first_name', 'last_name']
+    updated_data = {}
+    for key, value in request.json.items():
+        if key not in expected_fields:
+            continue
+        updated_data[key] = value
+    user = userClass.get_user(updated_data['email'])
+    user['_id'] = str(user['_id'])
+    result = userClass.update_user(user['_id'], updated_data)
+    if result:
+        user = userClass.get_user(updated_data['email'])
         user['_id'] = str(user['_id'])
         return jsonify(user)
+    else:
+        return jsonify({"error": "Failed to update profile. Please try again."})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

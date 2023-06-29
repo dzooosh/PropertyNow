@@ -63,15 +63,18 @@ def get_users():
 @admin.route('/users/<string:user_id>/update', methods=['POST'],
              strict_slashes=False)
 @jwt_required()
-def update_users(user_id: str):
+def update_user(user_id: str):
         """
         update property with new details
         """
-        user_details = request.form
+        account = request.json.get('account_type')
+        user_details = {}
+        user_details['account_type'] = account
         result = userClass.update_user(user_id, user_details)
-        if 'error' in result.keys():
-               return jsonify(result), 400
-        return jsonify(result)
+        # if result:
+        #         return jsonify({"message": "update successful"})
+        # else:
+        #         return jsonify({"error": "update failed! Try again"}), 400
 
 
 # Property section
@@ -120,7 +123,7 @@ def delete_property(property_id: str):
                return jsonify({'error': 'failed to delete'}), 400
         return jsonify({'message': 'property deleted'}), 204
 
-@admin.route('/properties/search', methods=['GET'], strict_slashes=False)
+@admin.route('/properties/', methods=['GET'], strict_slashes=False)
 @jwt_required
 def search_for_properties():
         """
