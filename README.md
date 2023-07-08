@@ -2,6 +2,9 @@
 
 PropertyNow is a web application that helps people get the property of their choices and can filter based on their budget and location
 
+check out the video demo of the work done so far:
+https://drive.google.com/file/d/18AFhBr2cIjGAG6VsUY-AKdnrXzYpJmF3/view?usp=drivesdk
+
 # Backend Setup
 
 Installing the required and used packages/dependencies. Run
